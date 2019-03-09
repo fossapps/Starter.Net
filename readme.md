@@ -1,4 +1,4 @@
-## Starter.Net
+## Introduction
 I'm starting this project so anyone can take this and kick start the project.
 This will use .NET Core framework so it's truly cross-platform
 (unless you make system calls to a specific platform)
@@ -51,7 +51,4 @@ Simply clone this repository, and open in Rider or Visual Studio Code and start 
 
 ## More Documentation
 Before a feature is worked on, I'll try to document on what needs to be done, after the feature is ready,
-I'll try to finalize the wiki page. If there's something missing, please contribute.
-
-## License (MIT)
-Visit license to see if you can use this.
+I'll try to finalize the documentation. If there's something missing, please contribute.
