@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Starter.Net.Api.Controllers
@@ -14,7 +15,8 @@ namespace Starter.Net.Api.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
-            return new string[] {"value1", "value2"};
+            HttpContext.Items.TryGetValue("uuid", out var uuid);
+            return new string[] {"value1", "value2", uuid?.ToString()};
         }
 
         // GET api/values/5
