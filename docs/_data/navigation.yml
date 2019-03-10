@@ -2,18 +2,18 @@ docs:
   - title: Getting Started
     children:
       - title: "Quick-Start Guide"
-        url: /
+        url: /quick_start
       - title: "Structure"
         url: /structure/
-#      - title: "Installation"
-#        url: /installation/
+      - title: "Projects Definition"
+        url: /project_definition/
 #      - title: "Upgrading"
 #        url: /docs/upgrading/
 
-  - title: Customization
+  - title: Included Middlewares
     children:
-      - title: "Configuration"
-        url: /configuration/
+      - title: "UUID"
+        url: /middlewares/uuid.html
       - title: "Navigation"
         url: /navigation/
       - title: "UI Text"
@@ -23,7 +23,7 @@ docs:
       - title: "Layouts"
         url: /layouts/
 
-  - title: Content
+  - title: Features
     children:
       - title: "Working with Posts"
         url: /docs/posts/

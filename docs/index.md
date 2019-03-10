@@ -1,14 +1,27 @@
-## Getting Started
+## Starter.Net
+A Starter Kit built with production in mind.
+It contains things you're most likely to use in a project such as auth, monitoring, etc
 
-Starter.Net is an opinionated starter kit for .NET projects which aims to be batteries included but removable project.
-Everything used on this project should be fairly easy to replace or remove completely. It aims to include most
-of production needs which includes monitoring, linting, building docker images, social logins etc pre-built
+## What will this contain?
+Feature list for this project as of now planned are the following without any order, they may change at any time.
 
-### Quick Start
-```bash
-git clone git@github.com:fossapps/Starter.Net
-cd Starter.Net
-dotnet restore
-dotnet run --project ./Src/Starter.Net.Api/Starter.Net.Api.csproj
-```
-It should start listening on http://localhost:5000 & https://localhost:50001 (you'll have to confirm security warning)
+- [ ] Swagger Docs (`spec.json` endpoint and docs)
+- [ ] Linting
+- [ ] Pre configured endpoints for auth
+- [ ] Some basic middlewares
+- [ ] Docker image generation after doing CI testing
+- [ ] Logging (probably with kibana, but maybe using interface instead)
+- [ ] Social Logins (facebook, linkedIn, etc)
+- [ ] Single Sign In (maybe?)
+- [ ] Recaptcha support
+- [ ] `ViewModel` to ensure communication is completely TypeSafe.
+- [ ] Basic Auth with permission model
+- [ ] Email support with driver architecture (so you can swap out your provider)
+- [ ] Easy Email Creation (although this might just be a separate project)
+- [ ] Feature Toggles (this isn't just simple on/off toggles, rather toggles for group of users,
+- [ ] imagine you only want to turn on some feature to some group of people, or only 1% of your customer)
+- [ ] Experimentation (think A/B testing, it'll use similar concept from feature toggles, or will replace feature toggles)
+- [ ] Health Reporting
+- [ ] Caching
+- [ ] Messaging via RabbitMQ
+- [ ] Measurements (monitoring of CPU usage, disk space, http status codes, error rates, other meters etc)
