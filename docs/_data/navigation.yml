@@ -13,7 +13,7 @@ docs:
   - title: Included Middlewares
     children:
       - title: "UUID"
-        url: /middlewares/uuid.html
+        url: /middlewares/uuid/
       - title: "Navigation"
         url: /navigation/
       - title: "UI Text"

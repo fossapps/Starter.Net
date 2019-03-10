@@ -1,7 +1,7 @@
 ## uuid Middleware
 This middleware takes care extracting uuid from cookie, if uuid is not present, it simply adds one.
 
-Once extracted, it adds uuid to HttpContext which can be consumed in controller:
+Once extracted, it adds uuid to HttpContext which can be consumed in controller in the following way:
 ```c#
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
