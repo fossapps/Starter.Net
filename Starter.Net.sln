@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Starter.Net.Api", "Src/Star
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Starter.Net.Startup", "Src\Starter.Net.Startup\Starter.Net.Startup.csproj", "{D3B1DB4E-D8C0-4C66-AB04-9A439EB1B0CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Starter.Net.Startup.Test", "Starter.Net.Startup.Test\Starter.Net.Startup.Test.csproj", "{983DDAC1-C51F-45CC-8A99-AD03B9E0AA3E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Starter.Net.Startup.Test", "Src\Starter.Net.Startup.Test\Starter.Net.Startup.Test.csproj", "{C58DA9FE-4A17-49C3-8B38-078B67DF612C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,9 +20,9 @@ Global
 		{D3B1DB4E-D8C0-4C66-AB04-9A439EB1B0CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3B1DB4E-D8C0-4C66-AB04-9A439EB1B0CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3B1DB4E-D8C0-4C66-AB04-9A439EB1B0CC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{983DDAC1-C51F-45CC-8A99-AD03B9E0AA3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{983DDAC1-C51F-45CC-8A99-AD03B9E0AA3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{983DDAC1-C51F-45CC-8A99-AD03B9E0AA3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{983DDAC1-C51F-45CC-8A99-AD03B9E0AA3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C58DA9FE-4A17-49C3-8B38-078B67DF612C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C58DA9FE-4A17-49C3-8B38-078B67DF612C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C58DA9FE-4A17-49C3-8B38-078B67DF612C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C58DA9FE-4A17-49C3-8B38-078B67DF612C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

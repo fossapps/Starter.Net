@@ -1,0 +1,61 @@
+version: 2.0
+
+jobs:
+  install:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview2-alpine3.8
+    working_directory: ~/Starter.Net
+    steps:
+      - checkout
+      - run: dotnet restore
+      - save_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/Starter.Net
+
+  build_project:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview2-alpine3.8
+    working_directory: ~/Starter.Net
+    steps:
+      - restore_cache:
+          keys:
+            - v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - run: dotnet build
+      - save_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/Starter.Net
+
+  execute_tests:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview2-alpine3.8
+    working_directory: ~/Starter.Net
+    steps:
+      - restore_cache:
+          keys:
+            - v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - run: dotnet test
+
+  finalize_step:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview2-alpine3.8
+    working_directory: ~/Starter.Net
+    steps:
+      - run: echo "Finalize"
+
+workflows:
+  version: 2
+  install-build-and-deploy:
+    jobs:
+      - install
+      - build_project:
+          requires:
+            - install
+      - execute_tests:
+          requires:
+            - install
+      - finalize_step:
+          requires:
+            - build_project
+            - execute_tests

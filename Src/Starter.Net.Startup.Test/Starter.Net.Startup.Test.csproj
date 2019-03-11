@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Src\Starter.Net.Startup\Starter.Net.Startup.csproj" />
+      <ProjectReference Include="..\Starter.Net.Startup\Starter.Net.Startup.csproj" />
     </ItemGroup>
 
 </Project>
