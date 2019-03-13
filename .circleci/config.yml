@@ -3,7 +3,7 @@ version: 2.0
 jobs:
   install:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview2-alpine3.8
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview3-alpine3.9
     working_directory: ~/Starter.Net
     steps:
       - checkout
@@ -15,7 +15,7 @@ jobs:
 
   build_project:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview2-alpine3.8
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview3-alpine3.9
     working_directory: ~/Starter.Net
     steps:
       - restore_cache:
@@ -29,7 +29,7 @@ jobs:
 
   execute_tests:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview2-alpine3.8
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview3-alpine3.9
     working_directory: ~/Starter.Net
     steps:
       - restore_cache:
@@ -39,7 +39,7 @@ jobs:
 
   finalize_step:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview2-alpine3.8
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview3-alpine3.9
     working_directory: ~/Starter.Net
     steps:
       - run: echo "Finalize"
