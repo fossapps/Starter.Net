@@ -1,7 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Starter.Net.Startup.Middlewares;
@@ -11,13 +8,11 @@ namespace Starter.Net.Startup
 {
     public abstract class StartupBase
     {
-        private IHostingEnvironment _env { get; set; }
-        private IConfiguration _config { set; get; }
+        private IConfiguration Config { get; }
 
-        protected StartupBase(IHostingEnvironment env, IConfiguration config)
+        protected StartupBase(IConfiguration config)
         {
-            _env = env;
-            _config = config;
+            Config = config;
         }
 
         protected void ConfigureServices(IServiceCollection services)

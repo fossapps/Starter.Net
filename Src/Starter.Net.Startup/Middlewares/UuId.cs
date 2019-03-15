@@ -6,23 +6,23 @@ namespace Starter.Net.Startup.Middlewares
 {
     public class UuId
     {
-        private RequestDelegate _next { get; }
-        private IUuidService _uuid { get; }
+        private RequestDelegate Next { get; }
+        private IUuidService Uuid { get; }
         public UuId(RequestDelegate next, IUuidService uuidService)
         {
-            _next = next;
-            _uuid = uuidService;
+            Next = next;
+            Uuid = uuidService;
         }
 
         public async Task Invoke(HttpContext context)
         {
             if (!context.Request.Cookies.TryGetValue("uuid", out var uuid))
             {
-                uuid = _uuid.GenerateUuId();
+                uuid = Uuid.GenerateUuId();
                 context.Response.Cookies.Append("uuid", uuid);
             }
             context.Items.Add("uuid", uuid);
-            await _next(context);
+            await Next(context);
         }
     }
 }

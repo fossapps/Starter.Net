@@ -1,10 +1,6 @@
 using System.IO;
 using System.Linq;
-using System.Net;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
-using Microsoft.Net.Http.Headers;
-using Microsoft.VisualBasic.ApplicationServices;
 using Starter.Net.Startup.Middlewares;
 using Starter.Net.Startup.Services;
 using Xunit;
@@ -17,7 +13,7 @@ namespace Starter.Net.Startup.Test.Middlewares
         public async void TestAddsUuIdToContextAndCookie()
         {
             const string mockUuid = "2429bfd5-46ea-44dd-8e91-c78965e64b89";
-            var middleware = new UuId(async (innerHttpContext) =>
+            var middleware = new UuId(async innerHttpContext =>
             {
                 innerHttpContext.Items.TryGetValue("uuid", out var token);
                 Assert.NotNull(token);
@@ -33,7 +29,7 @@ namespace Starter.Net.Startup.Test.Middlewares
             Assert.Equal(mockUuid, uuid.ToString());
             context.Response.Headers.TryGetValue("Set-Cookie", out var setCookieHeaders);
             var uuidCookie = setCookieHeaders.ToArray().Where(x => x.StartsWith("uuid=")).ToArray()[0];
-            Assert.StartsWith($"uuid={uuid.ToString()}", uuidCookie);
+            Assert.StartsWith($"uuid={uuid}", uuidCookie);
         }
     }
 
