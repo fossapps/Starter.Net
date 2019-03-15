@@ -6,6 +6,8 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Http" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc" />
+        <PackageReference Include="Microsoft.AspNetCore.Hosting" />
+        <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" />
     </ItemGroup>
 
 </Project>
