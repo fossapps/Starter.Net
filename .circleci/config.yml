@@ -4,19 +4,20 @@ jobs:
   install:
     docker:
       - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview3-alpine3.9
-    working_directory: ~/Starter.Net
+    working_directory: /home/circleci/Starter.Net
     steps:
       - checkout
       - run: dotnet restore
+      - run: chmod -R 777 /home/circleci/Starter.Net
       - save_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - ~/Starter.Net
+            - /home/circleci/Starter.Net
 
   build_project:
     docker:
       - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview3-alpine3.9
-    working_directory: ~/Starter.Net
+    working_directory: /home/circleci/Starter.Net
     steps:
       - restore_cache:
           keys:
@@ -25,24 +26,47 @@ jobs:
       - save_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - ~/Starter.Net
+            - /home/circleci/Starter.Net
 
   execute_tests:
     docker:
       - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview3-alpine3.9
-    working_directory: ~/Starter.Net
+    working_directory: /home/circleci/Starter.Net
     steps:
       - restore_cache:
           keys:
             - v1-repo-{{ .Environment.CIRCLE_SHA1 }}
       - run: dotnet test
-
-  finalize_step:
+  produce_dll:
     docker:
       - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview3-alpine3.9
-    working_directory: ~/Starter.Net
+    working_directory: /home/circleci/Starter.Net
     steps:
-      - run: echo "Finalize"
+      - restore_cache:
+          keys:
+            - v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - run: dotnet publish -c Release -o out
+      - save_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}-dll
+          paths:
+            - /home/circleci/Starter.Net
+    
+  finalize_step:
+    working_directory: /home/circleci/Starter.Net
+    machine: true
+    steps:
+      - restore_cache:
+          keys:
+            - v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - run: ls -al
+      - run: docker build . -t starter.net:$CIRCLE_SHA1
+      - run: |
+              if [ "${CIRCLE_TAG}" == "" ]; then
+                echo "Skipping build because it's not a tag"
+              else
+                echo "Tagging with: ${CIRCLE_TAG}"
+                docker tag starter.net:$CIRCLE_SHA1 starter.net:$CIRCLE_TAG
+              fi
 
 workflows:
   version: 2
@@ -55,7 +79,12 @@ workflows:
       - execute_tests:
           requires:
             - install
+      - produce_dll:
+          requires:
+            - build_project
+            - execute_tests
       - finalize_step:
           requires:
+            - produce_dll
             - build_project
             - execute_tests
