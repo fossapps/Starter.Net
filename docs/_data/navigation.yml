@@ -2,13 +2,13 @@ docs:
   - title: Getting Started
     children:
       - title: "Quick-Start Guide"
-        url: /quick_start
+        url: /quick_start/
       - title: "Structure"
         url: /structure/
       - title: "Projects Definition"
         url: /project_definition/
       - title: "Continuous Integration"
-        url: /docs/ci/
+        url: /ci/
 
   - title: Included Middlewares
     children:
