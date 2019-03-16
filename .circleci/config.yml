@@ -58,15 +58,24 @@ jobs:
       - restore_cache:
           keys:
             - v1-repo-{{ .Environment.CIRCLE_SHA1 }}
-      - run: ls -al
-      - run: docker build . -t starter.net:$CIRCLE_SHA1
+      - run: echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+      - run: |
+              docker build . -t fossapps/starter.net:`git rev-parse --short=4 ${CIRCLE_SHA1}`
+              docker push fossapps/starter.net:`git rev-parse --short=4 ${CIRCLE_SHA1}`
       - run: |
               if [ "${CIRCLE_TAG}" == "" ]; then
                 echo "Skipping build because it's not a tag"
               else
                 echo "Tagging with: ${CIRCLE_TAG}"
-                docker tag starter.net:$CIRCLE_SHA1 starter.net:$CIRCLE_TAG
+                docker tag fossapps/starter.net:`git rev-parse --short=4 ${CIRCLE_SHA1}` fossapps/starter.net:$CIRCLE_TAG
+                docker push fossapps/starter.net:$CIRCLE_TAG
               fi
+      - run: |
+          if [ "${CIRCLE_BRANCH}" == "master" ]; then
+            echo "Tagging :latest"
+            docker tag fossapps/starter.net:`git rev-parse --short=4 ${CIRCLE_SHA1}` fossapps/starter.net:latest
+            docker push fossapps/starter.net:latest
+          fi
 
 workflows:
   version: 2
