@@ -7,8 +7,8 @@ docs:
         url: /structure/
       - title: "Projects Definition"
         url: /project_definition/
-#      - title: "Upgrading"
-#        url: /docs/upgrading/
+      - title: "Continuous Integration"
+        url: /docs/ci/
 
   - title: Included Middlewares
     children:
