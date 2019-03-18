@@ -6,7 +6,7 @@ Development of this project will happen from both Linux and Windows systems to m
 that it'll will work on windows machines,
 There are plans to setup testing on Linux, Windows and Mac OSes, however they're not finalized yet.
 
-## Comparision with dotnet generator
+## Comparison with dotnet generator
 You might be tempted to think why can't we simply do `dotnet new webapi` and we obviously can for playing around.
 I want to include much more features than just returning few values from `ValuesController`
 
