@@ -1,0 +1,22 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:11-alpine
+    ports:
+      - 15432:5432
+    environment:
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_USER=fossapps
+      - POSTGRES_DB=starter
+  adminer:
+    image: adminer
+    ports:
+      - 8081:8080
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 8080:8080
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@localhost
+      - PGADMIN_DEFAULT_PASSWORD=secret
+      - PGADMIN_LISTEN_PORT=8080

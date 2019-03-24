@@ -1,8 +1,11 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Starter.Net.Api.Models;
 
 namespace Starter.Net.Api
 {
@@ -20,8 +23,27 @@ namespace Starter.Net.Api
         {
             // add services
             base.ConfigureServices(services);
+            services.AddDbContext<ApplicationContext>();
+            services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationContext>();
             services.AddMvc()
                 .AddNewtonsoftJson();
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                
+                options.User.AllowedUserNameCharacters =
+                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,6 +64,7 @@ namespace Starter.Net.Api
 
             app.UseRouting(routes => { routes.MapControllers(); });
 
+            app.UseAuthentication();
             app.UseAuthorization();
         }
     }
