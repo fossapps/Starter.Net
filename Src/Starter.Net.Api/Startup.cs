@@ -57,6 +57,7 @@ namespace Starter.Net.Api
         private static void AddConfiguration(IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton(configuration);
+            services.Configure<Database>(configuration.GetSection("DatabaseConfig"));
             services.Configure<InitDb>(configuration.GetSection("InitDb"));
             services.Configure<Configs.Authentication>(configuration.GetSection("Authentication"));
         }
