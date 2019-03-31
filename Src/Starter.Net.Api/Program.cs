@@ -14,7 +14,7 @@ namespace Starter.Net.Api
     {
         public static void Main(string[] args)
         {
-            var webHost = CreateHostBuilder(args).Build();
+            var webHost = CreateWebHostBuilder(args).Build();
             using (var scope = webHost.Services.CreateScope())
             {
                 var serviceProvider = scope.ServiceProvider;
@@ -32,7 +32,7 @@ namespace Starter.Net.Api
             webHost.Run();
         }
 
-        private static IHostBuilder CreateHostBuilder(string[] args) =>
+        private static IHostBuilder CreateWebHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
     }
