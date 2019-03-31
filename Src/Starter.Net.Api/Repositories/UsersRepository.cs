@@ -18,6 +18,11 @@ namespace Starter.Net.Api.Repositories
             return _userManager.FindByNameAsync(username);
         }
 
+        public Task<User> FindByUserIdAsync(string userId)
+        {
+            return _userManager.FindByIdAsync(userId);
+        }
+
         public Task<User> FindByEmailAsync(string email)
         {
             return _userManager.FindByEmailAsync(email);

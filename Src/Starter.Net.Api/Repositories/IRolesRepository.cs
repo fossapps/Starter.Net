@@ -8,5 +8,7 @@ namespace Starter.Net.Api.Repositories
     {
         Task<IList<string>> GetRolesByUserId(string userId);
         Task<IList<string>> GetRolesByUser(IdentityUser user);
+        Task<IdentityRole> FindRoleByIdAsync(string roleId);
+        Task<IdentityRole> FindRoleByNameAsync(string roleName);
     }
 }
