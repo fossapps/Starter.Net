@@ -21,29 +21,36 @@ namespace Starter.Net.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public new void ConfigureServices(IServiceCollection services)
         {
-            // add services
+            AddConfiguration(services, Configuration);
             base.ConfigureServices(services);
             services.AddDbContext<ApplicationContext>();
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationContext>();
             services.AddMvc()
                 .AddNewtonsoftJson();
-            services.Configure<IdentityOptions>(options =>
-            {
-                options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 6;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireLowercase = false;
+            services.Configure<IdentityOptions>(ConfigureIdentityOptions);
+        }
 
-                options.Lockout.AllowedForNewUsers = true;
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                
-                options.User.AllowedUserNameCharacters =
-                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-                options.User.RequireUniqueEmail = true;
-            });
+        private void ConfigureIdentityOptions(IdentityOptions options)
+        {
+            var authOptions = Configuration.GetSection("Authentication").Get<Configs.Authentication>();
+            options.Password.RequireDigit = authOptions.PasswordRequirements.RequireDigit;
+            options.Password.RequiredLength = authOptions.PasswordRequirements.RequiredLength;
+            options.Password.RequireNonAlphanumeric = authOptions.PasswordRequirements.RequireAlphanumeric;
+            options.Password.RequireUppercase = authOptions.PasswordRequirements.RequireUppercase;
+            options.Password.RequireLowercase = authOptions.PasswordRequirements.RequireLowercase;
+
+            options.Lockout.AllowedForNewUsers = authOptions.Lockouts.AllowedForNewUsers;
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(authOptions.Lockouts.DefaultLockoutTimeInMinutes);
+            options.Lockout.MaxFailedAccessAttempts = authOptions.Lockouts.MaxAllowedFailedAttempts;
+
+            options.User.AllowedUserNameCharacters = authOptions.UsernameRequirements.AllowedCharactersInUsername;
+            options.User.RequireUniqueEmail = authOptions.UsernameRequirements.RequireUniqueEmail;
+        }
+        private static void AddConfiguration(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSingleton(configuration);
+            services.Configure<Configs.Authentication>(configuration.GetSection("Authentication"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
