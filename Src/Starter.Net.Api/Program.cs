@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Starter.Net.Api.Configs;
 using Starter.Net.Api.Models;
 
 namespace Starter.Net.Api
@@ -19,7 +21,8 @@ namespace Starter.Net.Api
                 try
                 {
                     var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
-                    DatabaseInitializer.SeedUsers(userManager).Wait();
+                    var options = serviceProvider.GetRequiredService<IOptions<InitDb>>();
+                    DatabaseInitializer.SeedUsers(userManager, options).Wait();
                 }
                 catch (Exception e)
                 {
