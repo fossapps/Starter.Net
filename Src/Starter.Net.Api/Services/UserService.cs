@@ -1,18 +1,19 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Starter.Net.Api.Models;
+using Starter.Net.Api.Repositories;
 
 namespace Starter.Net.Api.Services
 {
     public class UserService: IUserService
     {
         private readonly SignInManager<User> _signInManager;
-        private readonly UserManager<User> _userManager;
+        private readonly IUsersRepository _usersRepository;
 
-        public UserService(SignInManager<User> signInManager, UserManager<User> userManager)
+        public UserService(SignInManager<User> signInManager, IUsersRepository usersRepository)
         {
             _signInManager = signInManager;
-            _userManager = userManager;
+            _usersRepository = usersRepository;
         }
 
         public Task<(SignInResult signInResult, User user)> Authenticate(string login, string password)
@@ -24,13 +25,13 @@ namespace Starter.Net.Api.Services
 
         public async Task<(SignInResult signInResult, User user)> AuthenticateByUsername(string username, string password)
         {
-            var user = await _userManager.FindByNameAsync(username);
+            var user = await _usersRepository.FindByNameAsync(username);
             return await AuthenticateUser(user, password);
         }
 
         public async Task<(SignInResult signInResult, User user)> AuthenticateByEmail(string email, string password)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _usersRepository.FindByEmailAsync(email);
             return await AuthenticateUser(user, password);
         }
 

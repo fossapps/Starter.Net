@@ -26,6 +26,7 @@ namespace Starter.Net.Api
         {
             AddConfiguration(services, Configuration);
             base.ConfigureServices(services);
+            services.AddSingleton<IUsersRepository, UsersRepository>();
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IRolesRepository, RolesRepository>();
             services.AddDbContext<ApplicationContext>();
