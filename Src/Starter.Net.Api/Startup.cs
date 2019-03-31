@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Starter.Net.Api.Configs;
 using Starter.Net.Api.Models;
 
 namespace Starter.Net.Api
@@ -50,6 +51,7 @@ namespace Starter.Net.Api
         private static void AddConfiguration(IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton(configuration);
+            services.Configure<InitDb>(configuration.GetSection("InitDb"));
             services.Configure<Configs.Authentication>(configuration.GetSection("Authentication"));
         }
 
