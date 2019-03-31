@@ -9,18 +9,12 @@ namespace Starter.Net.Api.Models
     public class ApplicationContext: IdentityDbContext
     {
         public DbSet<User> Users { set; get; }
+        
+        public ApplicationContext(DbContextOptions<ApplicationContext> options)
+            : base(options)
+        {}
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var connection = new NpgsqlConnectionStringBuilder
-            {
-                Host = "localhost",
-                Port = 15432,
-                Database = "starter",
-                Username = "fossapps",
-                Password = "secret",
-                SslMode = SslMode.Disable
-            };
-            optionsBuilder.UseNpgsql(connection.ConnectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder builder)

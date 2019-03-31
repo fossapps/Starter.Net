@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Starter.Net.Api.Configs;
 using Starter.Net.Api.Models;
+using Starter.Net.Api.Services;
 
 namespace Starter.Net.Api
 {
@@ -24,6 +25,7 @@ namespace Starter.Net.Api
         {
             AddConfiguration(services, Configuration);
             base.ConfigureServices(services);
+            services.AddSingleton<IUserService, UserService>();
             services.AddDbContext<ApplicationContext>();
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationContext>();
