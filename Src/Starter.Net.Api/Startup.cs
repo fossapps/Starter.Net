@@ -27,7 +27,7 @@ namespace Starter.Net.Api
             AddConfiguration(services, Configuration);
             base.ConfigureServices(services);
             services.AddSingleton<IClaimsRepository, ClaimsRepository>();
-            services.AddSingleton<IUsersRepository, UsersRepository>();
+            services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IRolesRepository, RolesRepository>();
             services.AddDbContext<ApplicationContext>();
@@ -76,7 +76,7 @@ namespace Starter.Net.Api
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+//            app.UseHttpsRedirection();
 
             app.UseRouting(routes => { routes.MapControllers(); });
 
