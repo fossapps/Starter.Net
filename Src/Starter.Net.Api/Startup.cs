@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Starter.Net.Api.Configs;
+using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
 using Starter.Net.Api.Services;
@@ -27,6 +28,7 @@ namespace Starter.Net.Api
             AddConfiguration(services, Configuration);
             base.ConfigureServices(services);
             services.AddSingleton<IClaimsRepository, ClaimsRepository>();
+            services.AddSingleton<IMailService, SmtpMailService>();
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IRolesRepository, RolesRepository>();
@@ -59,6 +61,7 @@ namespace Starter.Net.Api
             services.AddSingleton(configuration);
             services.Configure<Database>(configuration.GetSection("DatabaseConfig"));
             services.Configure<InitDb>(configuration.GetSection("InitDb"));
+            services.Configure<Mail>(configuration.GetSection("EmailConfig"));
             services.Configure<Configs.Authentication>(configuration.GetSection("Authentication"));
         }
 

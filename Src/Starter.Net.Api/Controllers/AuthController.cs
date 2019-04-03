@@ -2,8 +2,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;
-using Starter.Net.Api.Repositories;
 using Starter.Net.Api.ViewModels;
 
 namespace Starter.Net.Api.Controllers
@@ -12,13 +12,11 @@ namespace Starter.Net.Api.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IUsersRepository _usersRepository;
         private readonly UserManager<User> _userManager;
 
-        public AuthController(UserManager<User> userManager, IUsersRepository usersRepository)
+        public AuthController(UserManager<User> userManager, IMailService mailService)
         {
             _userManager = userManager;
-            _usersRepository = usersRepository;
         }
 
         [HttpPost("register")]
