@@ -8,8 +8,12 @@ namespace Starter.Net.Api.Mails
     {
         private readonly MailMessage _message;
 
-        public MailMessageBuilder(MailMessage message)
+        public MailMessageBuilder(MailMessage message = null)
         {
+            if (message == null)
+            {
+                message = new MailMessage();
+            }
             _message = message;
         }
 
@@ -73,6 +77,11 @@ namespace Starter.Net.Api.Mails
                 .CreateAlternateViewFromString(body, Encoding.UTF8, MediaTypeNames.Text.Html);
             _message.AlternateViews.Add(view);
             return this;
+        }
+
+        public MailMessage Build()
+        {
+            return _message;
         }
     }
 }

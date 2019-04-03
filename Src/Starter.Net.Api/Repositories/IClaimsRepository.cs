@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Starter.Net.Api.Models;
 
 namespace Starter.Net.Api.Repositories
