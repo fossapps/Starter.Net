@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;
+using Starter.Net.Api.Repositories;
 using Starter.Net.Api.ViewModels;
 
 namespace Starter.Net.Api.Controllers
@@ -14,7 +15,7 @@ namespace Starter.Net.Api.Controllers
     {
         private readonly UserManager<User> _userManager;
 
-        public AuthController(UserManager<User> userManager, IMailService mailService)
+        public AuthController(UserManager<User> userManager, IRolesRepository rolesRepository)
         {
             _userManager = userManager;
         }
