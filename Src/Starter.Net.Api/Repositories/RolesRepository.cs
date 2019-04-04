@@ -2,15 +2,16 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Starter.Net.Api.Models;
 
 namespace Starter.Net.Api.Repositories
 {
     public class RolesRepository : IRolesRepository
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly RoleStore<IdentityRole> _roleStore;
 
-        public RolesRepository(UserManager<IdentityUser> userManager, RoleStore<IdentityRole> roleStore)
+        public RolesRepository(UserManager<User> userManager, RoleStore<IdentityRole> roleStore)
         {
             _userManager = userManager;
             _roleStore = roleStore;
@@ -31,7 +32,7 @@ namespace Starter.Net.Api.Repositories
             return _roleStore.FindByNameAsync(roleName);
         }
 
-        public async Task<IList<string>> GetRolesByUser(IdentityUser user)
+        public async Task<IList<string>> GetRolesByUser(User user)
         {
             return await _userManager.GetRolesAsync(user);
         }
