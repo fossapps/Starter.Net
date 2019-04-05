@@ -2,6 +2,8 @@ using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -31,7 +33,9 @@ namespace Starter.Net.Api
             services.AddSingleton<IMailService, SmtpMailService>();
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddSingleton<IUserService, UserService>();
-            services.AddSingleton<IRolesRepository, RolesRepository>();
+            services.AddScoped<IRolesRepository, RolesRepository>();
+            services.AddScoped<IRoleStore<IdentityRole>, RoleStore<IdentityRole>>();
+            services.AddScoped<DbContext, ApplicationContext>();
             services.AddDbContext<ApplicationContext>();
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationContext>();
