@@ -1,4 +1,7 @@
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -7,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Starter.Net.Api.Configs;
 using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;
@@ -29,16 +33,41 @@ namespace Starter.Net.Api
         {
             AddConfiguration(services, Configuration);
             base.ConfigureServices(services);
-            services.AddSingleton<IClaimsRepository, ClaimsRepository>();
             services.AddSingleton<IMailService, SmtpMailService>();
             services.AddScoped<IUsersRepository, UsersRepository>();
-            services.AddSingleton<IUserService, UserService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRolesRepository, RolesRepository>();
             services.AddScoped<IRoleStore<IdentityRole>, RoleStore<IdentityRole>>();
             services.AddScoped<DbContext, ApplicationContext>();
+            services.AddSingleton<ITokenFactory, TokenFactory>();
             services.AddDbContext<ApplicationContext>();
-            services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationContext>();
+            services.AddIdentity<User, IdentityRole>(options =>
+                    {
+                        options.ClaimsIdentity.UserIdClaimType = JwtRegisteredClaimNames.Sub;
+                    })
+                .AddEntityFrameworkStores<ApplicationContext>()
+                .AddDefaultTokenProviders();
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+            services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(config =>
+                {
+                    config.RequireHttpsMetadata = false;
+                    config.SaveToken = false;
+                    config.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidIssuer = "self",
+                        ValidAudience = "self",
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("qwertyuiopasdfghjklzxcvbnm123456")),
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
             services.AddMvc()
                 .AddNewtonsoftJson();
             services.Configure<IdentityOptions>(ConfigureIdentityOptions);
@@ -59,6 +88,8 @@ namespace Starter.Net.Api
 
             options.User.AllowedUserNameCharacters = authOptions.UsernameRequirements.AllowedCharactersInUsername;
             options.User.RequireUniqueEmail = authOptions.UsernameRequirements.RequireUniqueEmail;
+
+            options.SignIn.RequireConfirmedEmail = false; // todo: move to config
         }
         private static void AddConfiguration(IServiceCollection services, IConfiguration configuration)
         {

@@ -22,14 +22,21 @@ namespace Starter.Net.Api.Models
                 {
                     continue;
                 }
-                var result = await userManager.CreateAsync(new User()
+
+                var dbUser = new User()
                 {
                     Email = usersDetail.Email,
                     UserName = usersDetail.Username
-                }, usersDetail.Password);
-                if (!result.Succeeded)
+                };
+                var createUserResult = await userManager.CreateAsync(dbUser, usersDetail.Password);
+                var addToRoleResult = await userManager.AddToRoleAsync(dbUser, usersDetail.Role);
+                if (!createUserResult.Succeeded)
                 {
-                    Console.WriteLine(result.Errors.GetEnumerator().Current.Description);
+                    Console.WriteLine(createUserResult.Errors.GetEnumerator().Current.Description);
+                }
+                if (!addToRoleResult.Succeeded)
+                {
+                    Console.WriteLine(createUserResult.Errors.GetEnumerator().Current.Description);
                 }
             }
         }
