@@ -10,7 +10,7 @@ using Starter.Net.Api.Models;
 namespace Starter.Net.Api.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20190324090035_InitialCreate")]
+    [Migration("20190405061206_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,8 +47,9 @@ namespace Starter.Net.Api.Migrations
                         new
                         {
                             Id = "9a6eb015-82d1-480c-b962-5aab596ef4f6",
-                            ConcurrencyStamp = "68df042c-77bc-4567-8a03-5e1fa99d330e",
-                            Name = "admin"
+                            ConcurrencyStamp = "b0747176-df24-4a1c-b5a5-8653a4459d09",
+                            Name = "admin",
+                            NormalizedName = "ADMIN"
                         });
                 });
 

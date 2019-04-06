@@ -9,6 +9,7 @@ namespace Starter.Net.Api.Configs
     {
         public string Email { set; get; }
         public string Username { set; get; }
+        public string Role { set; get; }
         public string Password { set; get; }
     }
 

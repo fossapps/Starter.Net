@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Starter.Net.Api.Models;
@@ -16,29 +18,34 @@ namespace Starter.Net.Api.Services
             _usersRepository = usersRepository;
         }
 
-        public Task<(SignInResult signInResult, User user)> Authenticate(string login, string password)
+        public Task<(SignInResult signInResult, ClaimsPrincipal principal, User user)> Authenticate(string login, string password)
         {
             return login.Contains("@")
                 ? AuthenticateByEmail(login, password)
                 : AuthenticateByUsername(login, password);
         }
 
-        public async Task<(SignInResult signInResult, User user)> AuthenticateByUsername(string username, string password)
+        public async Task<(SignInResult signInResult, ClaimsPrincipal principal, User user)> AuthenticateByUsername(string username, string password)
         {
             var user = await _usersRepository.FindByNameAsync(username);
             return await AuthenticateUser(user, password);
         }
 
-        public async Task<(SignInResult signInResult, User user)> AuthenticateByEmail(string email, string password)
+        public async Task<(SignInResult signInResult, ClaimsPrincipal principal, User user)> AuthenticateByEmail(string email, string password)
         {
             var user = await _usersRepository.FindByEmailAsync(email);
             return await AuthenticateUser(user, password);
         }
 
-        private async Task<(SignInResult signInResult, User user)> AuthenticateUser(User user, string password)
+        private async Task<(SignInResult signInResult, ClaimsPrincipal principal, User user)> AuthenticateUser(User user, string password)
         {
             var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, true);
-            return (signInResult, user);
+            if (!signInResult.Succeeded)
+            {
+                return (signInResult, null, null);
+            }
+            var principal = await _signInManager.CreateUserPrincipalAsync(user);
+            return (signInResult, principal, user);
         }
     }
 }
