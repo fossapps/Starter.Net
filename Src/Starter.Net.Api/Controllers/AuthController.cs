@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
@@ -113,6 +114,7 @@ namespace Starter.Net.Api.Controllers
             var jwt = tokenHandler.CreateToken(tokenDescriptor);
             var refreshToken = GetRefreshToken(user.Id);
             _db.RefreshTokens.Add(refreshToken);
+            _db.SaveChanges();
             var loginResponse = new LoginSuccessResponse()
             {
                 RefreshToken = refreshToken.Value,
@@ -145,6 +147,47 @@ namespace Starter.Net.Api.Controllers
             _mailService.Send(mail);
             return Ok();
             // create a jwt and send email
+        }
+
+        [HttpPost("refresh")]
+        [ProducesResponseType(typeof(RefreshTokenResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Refresh([FromHeader] string authorization)
+        {
+            var token = _db.RefreshTokens.SingleOrDefault(x => x.Value == GetBearerToken(authorization));
+            if (token == null)
+            {
+                return BadRequest();
+            }
+            // refresh
+            var user = await _usersRepository.FindByUserIdAsync(token.User);
+            var principal = await _signInManager.CreateUserPrincipalAsync(user);
+            // verify if token is correct
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_jwt.SigningKey);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Issuer = _jwt.Issuer,
+                Audience = _jwt.Audience,
+                Subject = new ClaimsIdentity(principal.Claims),
+                Expires = DateTime.UtcNow.AddMinutes(_jwt.JwtTtl),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var jwt = tokenHandler.CreateToken(tokenDescriptor);
+            var res = new RefreshTokenResponse()
+            {
+                Token = tokenHandler.WriteToken(jwt)
+            };
+            return Ok(res);
+            // get bearer token from authorization header.
+            // check if it's available in database,
+            // if it's not available, then return 404
+            // create new jwt
+            // return
+        }
+
+        private string GetBearerToken(string authorizationHeader)
+        {
+            return authorizationHeader.Substring("Bearer ".Length).Trim();
         }
 
         [HttpPost("reset")]
