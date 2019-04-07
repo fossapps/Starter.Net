@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
 using Starter.Net.Api.ViewModels;
+using Starter.Net.Startup.Services;
 
 namespace Starter.Net.Api.Services
 {
@@ -12,16 +13,22 @@ namespace Starter.Net.Api.Services
         private readonly SignInManager<User> _signInManager;
         private readonly IUsersRepository _usersRepository;
         private readonly ITokenFactory _tokenFactory;
+        private readonly IUuidService _uuidService;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
 
         public UserService(
             SignInManager<User> signInManager,
             IUsersRepository usersRepository,
-            ITokenFactory tokenFactory
+            ITokenFactory tokenFactory,
+            IUuidService uuidService,
+            IRefreshTokenRepository refreshTokenRepository
             )
         {
             _signInManager = signInManager;
             _usersRepository = usersRepository;
             _tokenFactory = tokenFactory;
+            _uuidService = uuidService;
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
         public async Task<RefreshTokenResponse> RefreshAuthentication(RefreshToken token)
@@ -34,34 +41,47 @@ namespace Starter.Net.Api.Services
             };
         }
 
-        public Task<(SignInResult signInResult, ClaimsPrincipal principal, User user)> Authenticate(string login, string password)
+        public Task<(SignInResult signInResult, LoginSuccessResponse login)> Authenticate(string login, string password)
         {
             return login.Contains("@")
                 ? AuthenticateByEmail(login, password)
                 : AuthenticateByUsername(login, password);
         }
 
-        public async Task<(SignInResult signInResult, ClaimsPrincipal principal, User user)> AuthenticateByUsername(string username, string password)
+        public async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateByUsername(string username, string password)
         {
             var user = await _usersRepository.FindByNameAsync(username);
             return await AuthenticateUser(user, password);
         }
 
-        public async Task<(SignInResult signInResult, ClaimsPrincipal principal, User user)> AuthenticateByEmail(string email, string password)
+        public async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateByEmail(string email, string password)
         {
             var user = await _usersRepository.FindByEmailAsync(email);
             return await AuthenticateUser(user, password);
         }
 
-        private async Task<(SignInResult signInResult, ClaimsPrincipal principal, User user)> AuthenticateUser(User user, string password)
+        private async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateUser(User user, string password)
         {
             var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, true);
             if (!signInResult.Succeeded)
             {
-                return (signInResult, null, null);
+                return (signInResult, null);
             }
             var principal = await _signInManager.CreateUserPrincipalAsync(user);
-            return (signInResult, principal, user);
+            var jwt = _tokenFactory.GenerateJwtToken(principal);
+            var refreshToken = new RefreshToken()
+            {
+                Id = _uuidService.GenerateUuId(),
+                User = user.Id,
+                Value = _tokenFactory.GenerateToken(32)
+            };
+            _refreshTokenRepository.Add(refreshToken);
+            var res = new LoginSuccessResponse()
+            {
+                RefreshToken = refreshToken.Value,
+                Jwt = jwt
+            };
+            return (signInResult, res);
         }
     }
 }

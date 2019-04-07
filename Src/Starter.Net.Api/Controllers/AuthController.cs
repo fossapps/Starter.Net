@@ -91,21 +91,12 @@ namespace Starter.Net.Api.Controllers
         [ProducesResponseType(typeof(LoginSuccessResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Login(LoginRequest loginRequest)
         {
-            var (signInResult, principal, user) = await _userService.Authenticate(loginRequest.Login, loginRequest.Password);
+            var (signInResult, res) = await _userService.Authenticate(loginRequest.Login, loginRequest.Password);
             if (!signInResult.Succeeded)
             {
                 return Unauthorized(ProcessErrorResult(signInResult));
             }
-
-            var jwt = _tokenFactory.GenerateJwtToken(principal);
-            var refreshToken = GetRefreshToken(user.Id);
-            _refreshTokenRepository.Add(refreshToken);
-            var loginResponse = new LoginSuccessResponse()
-            {
-                RefreshToken = refreshToken.Value,
-                Jwt = jwt
-            };
-            return Ok(loginResponse);
+            return Ok(res);
         }
 
         [HttpPost("request_reset")]

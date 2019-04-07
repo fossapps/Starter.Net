@@ -8,9 +8,9 @@ namespace Starter.Net.Api.Services
 {
     public interface IUserService
     {
-        Task<(SignInResult signInResult, ClaimsPrincipal principal, User user)> AuthenticateByUsername(string username, string password);
-        Task<(SignInResult signInResult, ClaimsPrincipal principal, User user)> AuthenticateByEmail(string email, string password);
-        Task<(SignInResult signInResult, ClaimsPrincipal principal, User user)> Authenticate(string login, string password);
+        Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateByUsername(string username, string password);
+        Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateByEmail(string email, string password);
+        Task<(SignInResult signInResult, LoginSuccessResponse login)> Authenticate(string login, string password);
         Task<RefreshTokenResponse> RefreshAuthentication(RefreshToken token);
     }
 }
