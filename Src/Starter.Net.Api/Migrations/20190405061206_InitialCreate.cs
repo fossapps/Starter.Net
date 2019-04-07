@@ -157,7 +157,7 @@ namespace Starter.Net.Api.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "9a6eb015-82d1-480c-b962-5aab596ef4f6", "68df042c-77bc-4567-8a03-5e1fa99d330e", "admin", null });
+                values: new object[] { "9a6eb015-82d1-480c-b962-5aab596ef4f6", "b0747176-df24-4a1c-b5a5-8653a4459d09", "admin", "ADMIN" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoleClaims",

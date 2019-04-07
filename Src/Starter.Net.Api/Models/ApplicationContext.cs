@@ -11,6 +11,7 @@ namespace Starter.Net.Api.Models
     public class ApplicationContext: IdentityDbContext
     {
         public DbSet<User> Users { set; get; }
+        public DbSet<RefreshToken> RefreshTokens { set; get; }
         private readonly Database _db;
 
         public ApplicationContext(DbContextOptions options, IOptions<Database> dbOption) : base(options)
@@ -25,7 +26,7 @@ namespace Starter.Net.Api.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var connection = new NpgsqlConnectionStringBuilder	
+            var connection = new NpgsqlConnectionStringBuilder
             {
                 Host = _db.Host,
                 Port = _db.Port,
@@ -42,7 +43,7 @@ namespace Starter.Net.Api.Models
             base.OnModelCreating(builder);
             IdentityRole[] roles =
             {
-                new IdentityRole("admin") {Id = "9a6eb015-82d1-480c-b962-5aab596ef4f6"}
+                new IdentityRole("admin") {Id = "9a6eb015-82d1-480c-b962-5aab596ef4f6", NormalizedName = "ADMIN"}
             };
             builder.Entity<IdentityRole>().HasData(roles);
             IdentityRoleClaim<string>[] claims =

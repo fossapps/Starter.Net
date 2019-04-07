@@ -1,16 +1,19 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Starter.Net.Api.Models;
 
 namespace Starter.Net.Api.Repositories
 {
     public class RolesRepository : IRolesRepository
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleStore<IdentityRole> _roleStore;
+        private readonly UserManager<User> _userManager;
+        private readonly IRoleStore<IdentityRole> _roleStore;
 
-        public RolesRepository(UserManager<IdentityUser> userManager, RoleStore<IdentityRole> roleStore)
+        public RolesRepository(UserManager<User> userManager, IRoleStore<IdentityRole> roleStore)
         {
             _userManager = userManager;
             _roleStore = roleStore;
@@ -23,15 +26,15 @@ namespace Starter.Net.Api.Repositories
 
         public async Task<IdentityRole> FindRoleByIdAsync(string roleId)
         {
-            return await _roleStore.FindByIdAsync(roleId);
+            return await _roleStore.FindByIdAsync(roleId, CancellationToken.None);
         }
 
         public Task<IdentityRole> FindRoleByNameAsync(string roleName)
         {
-            return _roleStore.FindByNameAsync(roleName);
+            return _roleStore.FindByNameAsync(roleName, CancellationToken.None);
         }
 
-        public async Task<IList<string>> GetRolesByUser(IdentityUser user)
+        public async Task<IList<string>> GetRolesByUser(User user)
         {
             return await _userManager.GetRolesAsync(user);
         }

@@ -1,11 +1,22 @@
 using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Configs;
+using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
 using Starter.Net.Api.Services;
@@ -26,16 +37,62 @@ namespace Starter.Net.Api
         {
             AddConfiguration(services, Configuration);
             base.ConfigureServices(services);
-            services.AddSingleton<IClaimsRepository, ClaimsRepository>();
-            services.AddSingleton<IUsersRepository, UsersRepository>();
-            services.AddSingleton<IUserService, UserService>();
-            services.AddSingleton<IRolesRepository, RolesRepository>();
+            services.AddSingleton<IMailService, SmtpMailService>();
+            services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRolesRepository, RolesRepository>();
+            services.AddScoped<IRoleStore<IdentityRole>, RoleStore<IdentityRole>>();
+            services.AddScoped<DbContext, ApplicationContext>();
+            services.AddSingleton<ITokenFactory, TokenFactory>();
             services.AddDbContext<ApplicationContext>();
-            services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationContext>();
+            services.AddIdentity<User, IdentityRole>(options =>
+                    {
+                        options.ClaimsIdentity.UserIdClaimType = JwtRegisteredClaimNames.Sub;
+                    })
+                .AddEntityFrameworkStores<ApplicationContext>()
+                .AddDefaultTokenProviders();
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            services.AddAuthorization(config =>
+            {
+                foreach (var permission in GetAllPermissions())
+                {
+                    config.AddPolicy(permission, builder =>
+                        {
+                            builder.RequireClaim(CustomClaims.Permission, permission);
+                        });
+                }
+            });
+
+            services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(config =>
+                {
+                    var authOptions = Configuration.GetSection("Authentication").Get<Configs.Authentication>();
+                    config.RequireHttpsMetadata = false;
+                    config.SaveToken = false;
+                    config.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidIssuer = authOptions.JwtBearerOptions.Issuer,
+                        ValidAudience = authOptions.JwtBearerOptions.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authOptions.JwtBearerOptions.SigningKey)),
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
             services.AddMvc()
                 .AddNewtonsoftJson();
             services.Configure<IdentityOptions>(ConfigureIdentityOptions);
+        }
+
+        private IEnumerable<string> GetAllPermissions()
+        {
+            return typeof(Permissions)
+                .GetFields(BindingFlags.Static & BindingFlags.Public)
+                .Select(x => x.Name);
         }
 
         private void ConfigureIdentityOptions(IdentityOptions options)
@@ -53,12 +110,15 @@ namespace Starter.Net.Api
 
             options.User.AllowedUserNameCharacters = authOptions.UsernameRequirements.AllowedCharactersInUsername;
             options.User.RequireUniqueEmail = authOptions.UsernameRequirements.RequireUniqueEmail;
+
+            options.SignIn.RequireConfirmedEmail = false; // todo: move to config
         }
         private static void AddConfiguration(IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton(configuration);
             services.Configure<Database>(configuration.GetSection("DatabaseConfig"));
             services.Configure<InitDb>(configuration.GetSection("InitDb"));
+            services.Configure<Mail>(configuration.GetSection("EmailConfig"));
             services.Configure<Configs.Authentication>(configuration.GetSection("Authentication"));
         }
 
@@ -76,7 +136,7 @@ namespace Starter.Net.Api
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+//            app.UseHttpsRedirection();
 
             app.UseRouting(routes => { routes.MapControllers(); });
 
