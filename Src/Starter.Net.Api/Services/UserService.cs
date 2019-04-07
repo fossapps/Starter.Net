@@ -62,6 +62,21 @@ namespace Starter.Net.Api.Services
             _mailService.Send(mail);
         }
 
+        public async Task<IdentityResult> ResetPassword(PasswordResetRequest request)
+        {
+            var user = await _usersRepository.FindByNameAsync(request.Username);
+            var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
+            if (!result.Succeeded)
+            {
+                return result;
+            }
+            var builder = new PasswordResetConfirmationEmail(_mailConfig);
+            var recipient = new MailAddress(user.Email, user.UserName);
+            var mail = builder.Build(recipient);
+            _mailService.Send(mail);
+            return result;
+        }
+
         public async Task<(IdentityResult result, UserRegistrationSuccessResponse registrationSuccessResponse)> CreateUser(User user, string password)
         {
             var (result, registrationSuccessResponse, token) = await _usersRepository.Create(user, password);
