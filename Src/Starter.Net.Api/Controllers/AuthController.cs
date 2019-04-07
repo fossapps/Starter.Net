@@ -135,13 +135,7 @@ namespace Starter.Net.Api.Controllers
             {
                 return BadRequest();
             }
-            var user = await _usersRepository.FindByUserIdAsync(token.User);
-            var principal = await _signInManager.CreateUserPrincipalAsync(user);
-            var res = new RefreshTokenResponse()
-            {
-                Token = _tokenFactory.GenerateJwtToken(principal)
-            };
-            return Ok(res);
+            return Ok(await _userService.RefreshAuthentication(token));
         }
 
         private string GetBearerToken(string authorizationHeader)
