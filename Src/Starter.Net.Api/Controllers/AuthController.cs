@@ -1,15 +1,10 @@
-using System;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Mail;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Configs;
 using Starter.Net.Api.Mails;
@@ -31,7 +26,6 @@ namespace Starter.Net.Api.Controllers
         private readonly IUuidService _uuidService;
         private readonly ITokenFactory _tokenFactory;
         private readonly ApplicationContext _db;
-        private readonly JwtBearerOptions _jwt;
         private readonly IUsersRepository _usersRepository;
         private readonly SignInManager<User> _signInManager;
         private readonly IMailService _mailService;
@@ -59,7 +53,6 @@ namespace Starter.Net.Api.Controllers
             _signInManager = signInManager;
             _mailService = mailService;
             _mailConfig = mailConfig.Value;
-            _jwt = authentication.Value.JwtBearerOptions;
         }
 
         [HttpPost("register")]
@@ -101,24 +94,15 @@ namespace Starter.Net.Api.Controllers
             {
                 return Unauthorized(ProcessErrorResult(signInResult));
             }
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwt.SigningKey);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Issuer = _jwt.Issuer,
-                Audience = _jwt.Audience,
-                Subject = new ClaimsIdentity(principal.Claims),
-                Expires = DateTime.UtcNow.AddMinutes(_jwt.JwtTtl),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var jwt = tokenHandler.CreateToken(tokenDescriptor);
+
+            var jwt = _tokenFactory.GenerateJwtToken(principal);
             var refreshToken = GetRefreshToken(user.Id);
             _db.RefreshTokens.Add(refreshToken);
             _db.SaveChanges();
             var loginResponse = new LoginSuccessResponse()
             {
                 RefreshToken = refreshToken.Value,
-                Jwt = tokenHandler.WriteToken(jwt)
+                Jwt = jwt
             };
             return Ok(loginResponse);
         }
@@ -137,10 +121,9 @@ namespace Starter.Net.Api.Controllers
             }
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var mailBuilder = new ForgotPasswordEmail(_mailConfig);
-            var mail = mailBuilder.Build("/localhost/api/auth" + token, new MailAddress(user.Email, user.UserName));
+            var mail = mailBuilder.Build("/localhost/api/auth/" + token, new MailAddress(user.Email, user.UserName));
             _mailService.Send(mail);
             return Ok();
-            // create a jwt and send email
         }
 
         [HttpPost("refresh")]
@@ -152,31 +135,13 @@ namespace Starter.Net.Api.Controllers
             {
                 return BadRequest();
             }
-            // refresh
             var user = await _usersRepository.FindByUserIdAsync(token.User);
             var principal = await _signInManager.CreateUserPrincipalAsync(user);
-            // verify if token is correct
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwt.SigningKey);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Issuer = _jwt.Issuer,
-                Audience = _jwt.Audience,
-                Subject = new ClaimsIdentity(principal.Claims),
-                Expires = DateTime.UtcNow.AddMinutes(_jwt.JwtTtl),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var jwt = tokenHandler.CreateToken(tokenDescriptor);
             var res = new RefreshTokenResponse()
             {
-                Token = tokenHandler.WriteToken(jwt)
+                Token = _tokenFactory.GenerateJwtToken(principal)
             };
             return Ok(res);
-            // get bearer token from authorization header.
-            // check if it's available in database,
-            // if it's not available, then return 404
-            // create new jwt
-            // return
         }
 
         private string GetBearerToken(string authorizationHeader)
