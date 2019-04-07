@@ -58,13 +58,14 @@ namespace Starter.Net.Api
                 })
                 .AddJwtBearer(config =>
                 {
+                    var authOptions = Configuration.GetSection("Authentication").Get<Configs.Authentication>();
                     config.RequireHttpsMetadata = false;
                     config.SaveToken = false;
                     config.TokenValidationParameters = new TokenValidationParameters()
                     {
-                        ValidIssuer = "self",
-                        ValidAudience = "self",
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("qwertyuiopasdfghjklzxcvbnm123456")),
+                        ValidIssuer = authOptions.JwtBearerOptions.Issuer,
+                        ValidAudience = authOptions.JwtBearerOptions.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authOptions.JwtBearerOptions.SigningKey)),
                         ClockSkew = TimeSpan.Zero
                     };
                 });
