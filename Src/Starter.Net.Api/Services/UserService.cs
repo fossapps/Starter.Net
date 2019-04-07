@@ -1,6 +1,10 @@
-using System.Security.Claims;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using Starter.Net.Api.Configs;
+using Starter.Net.Api.Mails;
+using Starter.Net.Api.Mails.Content;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
 using Starter.Net.Api.ViewModels;
@@ -15,13 +19,19 @@ namespace Starter.Net.Api.Services
         private readonly ITokenFactory _tokenFactory;
         private readonly IUuidService _uuidService;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly Mail _mailConfig;
+        private readonly UserManager<User> _userManager;
+        private readonly IMailService _mailService;
 
         public UserService(
             SignInManager<User> signInManager,
             IUsersRepository usersRepository,
             ITokenFactory tokenFactory,
             IUuidService uuidService,
-            IRefreshTokenRepository refreshTokenRepository
+            IRefreshTokenRepository refreshTokenRepository,
+            IOptions<Mail> mailConfig,
+            UserManager<User> userManager,
+            IMailService mailService
             )
         {
             _signInManager = signInManager;
@@ -29,6 +39,9 @@ namespace Starter.Net.Api.Services
             _tokenFactory = tokenFactory;
             _uuidService = uuidService;
             _refreshTokenRepository = refreshTokenRepository;
+            _userManager = userManager;
+            _mailService = mailService;
+            _mailConfig = mailConfig.Value;
         }
 
         public async Task<RefreshTokenResponse> RefreshAuthentication(RefreshToken token)
@@ -39,6 +52,14 @@ namespace Starter.Net.Api.Services
             {
                 Token = _tokenFactory.GenerateJwtToken(principal)
             };
+        }
+
+        public async void RequestPasswordReset(User user)
+        {
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var mailBuilder = new ForgotPasswordEmail(_mailConfig);
+            var mail = mailBuilder.Build("/localhost/api/auth/" + token, new MailAddress(user.Email, user.UserName));
+            _mailService.Send(mail);
         }
 
         public Task<(SignInResult signInResult, LoginSuccessResponse login)> Authenticate(string login, string password)

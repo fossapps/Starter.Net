@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -25,9 +24,7 @@ namespace Starter.Net.Api.Controllers
         private readonly IUserService _userService;
         private readonly IUuidService _uuidService;
         private readonly ITokenFactory _tokenFactory;
-        private readonly ApplicationContext _db;
         private readonly IUsersRepository _usersRepository;
-        private readonly SignInManager<User> _signInManager;
         private readonly IMailService _mailService;
         private readonly Mail _mailConfig;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
@@ -37,9 +34,7 @@ namespace Starter.Net.Api.Controllers
             IUserService userService,
             IUuidService uuidService,
             ITokenFactory tokenFactory,
-            ApplicationContext db,
             IUsersRepository usersRepository,
-            SignInManager<User> signInManager,
             IMailService mailService,
             IOptions<Mail> mailConfig,
             IRefreshTokenRepository refreshTokenRepository
@@ -49,9 +44,7 @@ namespace Starter.Net.Api.Controllers
             _userService = userService;
             _uuidService = uuidService;
             _tokenFactory = tokenFactory;
-            _db = db;
             _usersRepository = usersRepository;
-            _signInManager = signInManager;
             _mailService = mailService;
             _refreshTokenRepository = refreshTokenRepository;
             _mailConfig = mailConfig.Value;
@@ -111,10 +104,7 @@ namespace Starter.Net.Api.Controllers
             {
                 return NotFound();
             }
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var mailBuilder = new ForgotPasswordEmail(_mailConfig);
-            var mail = mailBuilder.Build("/localhost/api/auth/" + token, new MailAddress(user.Email, user.UserName));
-            _mailService.Send(mail);
+            _userService.RequestPasswordReset(user);
             return Ok();
         }
 
