@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Configs;
 using Starter.Net.Api.Mails;
+using Starter.Net.Api.Mails.Content;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
 using Starter.Net.Api.Services;
@@ -135,14 +136,8 @@ namespace Starter.Net.Api.Controllers
                 return NotFound();
             }
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var mailBuilder = new MailMessageBuilder();
-            var recipient = new MailAddress(user.Email, user.UserName);
-            var mail = mailBuilder.WithSubject("Reset Password")
-                .WithSender(new MailAddress(_mailConfig.DefaultSender.From, _mailConfig.DefaultSender.Name))
-                .From(new MailAddress(_mailConfig.DefaultSender.From, _mailConfig.DefaultSender.Name))
-                .WithPlainTextBody(token)
-                .AddRecipients(new MailAddressCollection {recipient})
-                .Build();
+            var mailBuilder = new ForgotPasswordEmail(_mailConfig);
+            var mail = mailBuilder.Build("/localhost/api/auth" + token, new MailAddress(user.Email, user.UserName));
             _mailService.Send(mail);
             return Ok();
             // create a jwt and send email
@@ -203,13 +198,9 @@ namespace Starter.Net.Api.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
 
-            var builder = new MailMessageBuilder();
+            var builder = new PasswordResetConfirmationEmail(_mailConfig);
             var recipient = new MailAddress(user.Email, user.UserName);
-            var mail = builder.From(new MailAddress(_mailConfig.DefaultSender.From, _mailConfig.DefaultSender.Name))
-                .WithSubject("Password Reset Successful")
-                .WithPlainTextBody("Password Reset")
-                .AddRecipients(new MailAddressCollection() {recipient})
-                .Build();
+            var mail = builder.Build(recipient);
             _mailService.Send(mail);
             return Ok();
         }
