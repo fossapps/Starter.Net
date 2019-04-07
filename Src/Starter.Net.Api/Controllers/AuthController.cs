@@ -1,13 +1,7 @@
-using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Starter.Net.Api.Authentication;
-using Starter.Net.Api.Configs;
-using Starter.Net.Api.Mails;
-using Starter.Net.Api.Mails.Content;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
 using Starter.Net.Api.Services;
@@ -19,28 +13,19 @@ namespace Starter.Net.Api.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
         private readonly IUserService _userService;
         private readonly IUsersRepository _usersRepository;
-        private readonly IMailService _mailService;
-        private readonly Mail _mailConfig;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
 
         public AuthController(
-            UserManager<User> userManager,
             IUserService userService,
             IUsersRepository usersRepository,
-            IMailService mailService,
-            IOptions<Mail> mailConfig,
             IRefreshTokenRepository refreshTokenRepository
             )
         {
-            _userManager = userManager;
             _userService = userService;
             _usersRepository = usersRepository;
-            _mailService = mailService;
             _refreshTokenRepository = refreshTokenRepository;
-            _mailConfig = mailConfig.Value;
         }
 
         [HttpPost("register")]
@@ -114,8 +99,7 @@ namespace Starter.Net.Api.Controllers
         [HttpPost("reset")]
         public async Task<IActionResult> ResetPassword(PasswordResetRequest request)
         {
-            var user = await _usersRepository.FindByNameAsync(request.Username);
-            var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
+            var result = await _userService.ResetPassword(request);
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
@@ -124,19 +108,14 @@ namespace Starter.Net.Api.Controllers
                 }
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-
-            var builder = new PasswordResetConfirmationEmail(_mailConfig);
-            var recipient = new MailAddress(user.Email, user.UserName);
-            var mail = builder.Build(recipient);
-            _mailService.Send(mail);
             return Ok();
         }
 
         [HttpGet("check")]
         [RequirePermission("sudo")]
-        public async Task<string> Check()
+        public IActionResult Check()
         {
-            return "ok";
+            return Ok("ok");
         }
 
         private static string ProcessErrorResult(Microsoft.AspNetCore.Identity.SignInResult result)
