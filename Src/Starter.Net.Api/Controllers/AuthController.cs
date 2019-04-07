@@ -118,7 +118,7 @@ namespace Starter.Net.Api.Controllers
             return Ok(loginResponse);
         }
 
-        [HttpPost("reset")]
+        [HttpPost("request_reset")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Reset(ForgotPasswordRequest request)
         {
@@ -130,32 +130,43 @@ namespace Starter.Net.Api.Controllers
             {
                 return NotFound();
             }
-            var key = Encoding.ASCII.GetBytes(_jwt.SigningKey);
-            var principal = await _signInManager.CreateUserPrincipalAsync(user);
-            var claimsIdentity = new ClaimsIdentity(principal.Claims);
-            claimsIdentity.AddClaim(new Claim("purpose", "ForgotPassword"));
-            var tokenDescriptor = new SecurityTokenDescriptor()
-            {
-                Issuer = _jwt.Issuer,
-                Audience = _jwt.Audience,
-                Subject = claimsIdentity,
-                Expires = DateTime.UtcNow.AddMinutes(_jwt.JwtTtl),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var jwt = tokenHandler.WriteToken(token);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var mailBuilder = new MailMessageBuilder();
             var recipient = new MailAddress(user.Email, user.UserName);
             var mail = mailBuilder.WithSubject("Reset Password")
                 .WithSender(new MailAddress("no-reply@starter.net", "Starter.Net"))
                 .From(new MailAddress("no-reply@starter.net", "Starter.Net"))
-                .WithPlainTextBody(jwt)
+                .WithPlainTextBody(token)
                 .AddRecipients(new MailAddressCollection {recipient})
                 .Build();
             _mailService.Send(mail);
             return Ok();
             // create a jwt and send email
+        }
+
+        [HttpPost("reset")]
+        public async Task<IActionResult> ResetPassword(PasswordResetRequest request)
+        {
+            var user = await _usersRepository.FindByNameAsync(request.Username);
+            var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("Errors", error.Description);
+                }
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+
+            var builder = new MailMessageBuilder();
+            var recipient = new MailAddress(user.Email, user.UserName);
+            var mail = builder.From(new MailAddress("no-reply@starter.net", "Starter.Net"))
+                .WithSubject("Password Reset Successful")
+                .WithPlainTextBody("Password Reset")
+                .AddRecipients(new MailAddressCollection() {recipient})
+                .Build();
+            _mailService.Send(mail);
+            return Ok();
         }
 
         [HttpGet("check")]
