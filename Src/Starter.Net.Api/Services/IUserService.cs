@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Starter.Net.Api.Models;
@@ -12,5 +11,6 @@ namespace Starter.Net.Api.Services
         Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateByEmail(string email, string password);
         Task<(SignInResult signInResult, LoginSuccessResponse login)> Authenticate(string login, string password);
         Task<RefreshTokenResponse> RefreshAuthentication(RefreshToken token);
+        void RequestPasswordReset(User user);
     }
 }
