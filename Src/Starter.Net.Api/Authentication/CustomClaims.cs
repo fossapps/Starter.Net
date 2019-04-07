@@ -1,7 +1,7 @@
 namespace Starter.Net.Api.Authentication
 {
-    public class CustomClaims
+    public static class CustomClaims
     {
-        public const string Permission = "Permission";
+        public const string Permission = "permission";
     }
 }

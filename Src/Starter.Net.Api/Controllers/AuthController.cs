@@ -1,16 +1,20 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Starter.Net.Api.Configs;
+using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;
+using Starter.Net.Api.Repositories;
 using Starter.Net.Api.Services;
 using Starter.Net.Api.ViewModels;
 using Starter.Net.Startup.Services;
@@ -27,14 +31,30 @@ namespace Starter.Net.Api.Controllers
         private readonly ITokenFactory _tokenFactory;
         private readonly ApplicationContext _db;
         private readonly JwtBearerOptions _jwt;
+        private readonly IUsersRepository _usersRepository;
+        private readonly SignInManager<User> _signInManager;
+        private readonly IMailService _mailService;
 
-        public AuthController(UserManager<User> userManager, IUserService userService, IUuidService uuidService, ITokenFactory tokenFactory, ApplicationContext db, IOptions<Configs.Authentication> authentication)
+        public AuthController(
+            UserManager<User> userManager,
+            IUserService userService,
+            IUuidService uuidService,
+            ITokenFactory tokenFactory,
+            ApplicationContext db,
+            IOptions<Configs.Authentication> authentication,
+            IUsersRepository usersRepository,
+            SignInManager<User> signInManager,
+            IMailService mailService
+            )
         {
             _userManager = userManager;
             _userService = userService;
             _uuidService = uuidService;
             _tokenFactory = tokenFactory;
             _db = db;
+            _usersRepository = usersRepository;
+            _signInManager = signInManager;
+            _mailService = mailService;
             _jwt = authentication.Value.JwtBearerOptions;
         }
 
@@ -96,6 +116,46 @@ namespace Starter.Net.Api.Controllers
                 Jwt = tokenHandler.WriteToken(jwt)
             };
             return Ok(loginResponse);
+        }
+
+        [HttpPost("reset")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Reset(ForgotPasswordRequest request)
+        {
+            // once rate limiting is done, we can limit by two keys, one with request.Login and another with client's IP
+            // should we give error message if user doesn't exist? we can do this by config
+            // in either case, we should add rate limiting.
+            var user = await _usersRepository.Find(request.Login);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var key = Encoding.ASCII.GetBytes(_jwt.SigningKey);
+            var principal = await _signInManager.CreateUserPrincipalAsync(user);
+            var claimsIdentity = new ClaimsIdentity(principal.Claims);
+            claimsIdentity.AddClaim(new Claim("purpose", "ForgotPassword"));
+            var tokenDescriptor = new SecurityTokenDescriptor()
+            {
+                Issuer = _jwt.Issuer,
+                Audience = _jwt.Audience,
+                Subject = claimsIdentity,
+                Expires = DateTime.UtcNow.AddMinutes(_jwt.JwtTtl),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var jwt = tokenHandler.WriteToken(token);
+            var mailBuilder = new MailMessageBuilder();
+            var recipient = new MailAddress(user.Email, user.UserName);
+            var mail = mailBuilder.WithSubject("Reset Password")
+                .WithSender(new MailAddress("no-reply@starter.net", "Starter.Net"))
+                .From(new MailAddress("no-reply@starter.net", "Starter.Net"))
+                .WithPlainTextBody(jwt)
+                .AddRecipients(new MailAddressCollection {recipient})
+                .Build();
+            _mailService.Send(mail);
+            return Ok();
+            // create a jwt and send email
         }
 
         [HttpGet("check")]
