@@ -43,6 +43,7 @@ namespace Starter.Net.Api
             services.AddScoped<IRolesRepository, RolesRepository>();
             services.AddScoped<IRoleStore<IdentityRole>, RoleStore<IdentityRole>>();
             services.AddScoped<DbContext, ApplicationContext>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddSingleton<ITokenFactory, TokenFactory>();
             services.AddDbContext<ApplicationContext>();
             services.AddIdentity<User, IdentityRole>(options =>
@@ -52,16 +53,7 @@ namespace Starter.Net.Api
                 .AddEntityFrameworkStores<ApplicationContext>()
                 .AddDefaultTokenProviders();
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-            services.AddAuthorization(config =>
-            {
-                foreach (var permission in GetAllPermissions())
-                {
-                    config.AddPolicy(permission, builder =>
-                        {
-                            builder.RequireClaim(CustomClaims.Permission, permission);
-                        });
-                }
-            });
+            services.AddAuthorization();
 
             services
                 .AddAuthentication(options =>
@@ -86,13 +78,6 @@ namespace Starter.Net.Api
             services.AddMvc()
                 .AddNewtonsoftJson();
             services.Configure<IdentityOptions>(ConfigureIdentityOptions);
-        }
-
-        private IEnumerable<string> GetAllPermissions()
-        {
-            return typeof(Permissions)
-                .GetFields(BindingFlags.Static & BindingFlags.Public)
-                .Select(x => x.Name);
         }
 
         private void ConfigureIdentityOptions(IdentityOptions options)
