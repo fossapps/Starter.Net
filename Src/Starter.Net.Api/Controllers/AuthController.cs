@@ -1,14 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +34,7 @@ namespace Starter.Net.Api.Controllers
         private readonly IUsersRepository _usersRepository;
         private readonly SignInManager<User> _signInManager;
         private readonly IMailService _mailService;
+        private readonly Mail _mailConfig;
 
         public AuthController(
             UserManager<User> userManager,
@@ -48,7 +45,8 @@ namespace Starter.Net.Api.Controllers
             IOptions<Configs.Authentication> authentication,
             IUsersRepository usersRepository,
             SignInManager<User> signInManager,
-            IMailService mailService
+            IMailService mailService,
+            IOptions<Mail> mailConfig
             )
         {
             _userManager = userManager;
@@ -59,6 +57,7 @@ namespace Starter.Net.Api.Controllers
             _usersRepository = usersRepository;
             _signInManager = signInManager;
             _mailService = mailService;
+            _mailConfig = mailConfig.Value;
             _jwt = authentication.Value.JwtBearerOptions;
         }
 
@@ -139,8 +138,8 @@ namespace Starter.Net.Api.Controllers
             var mailBuilder = new MailMessageBuilder();
             var recipient = new MailAddress(user.Email, user.UserName);
             var mail = mailBuilder.WithSubject("Reset Password")
-                .WithSender(new MailAddress("no-reply@starter.net", "Starter.Net"))
-                .From(new MailAddress("no-reply@starter.net", "Starter.Net"))
+                .WithSender(new MailAddress(_mailConfig.DefaultSender.From, _mailConfig.DefaultSender.Name))
+                .From(new MailAddress(_mailConfig.DefaultSender.From, _mailConfig.DefaultSender.Name))
                 .WithPlainTextBody(token)
                 .AddRecipients(new MailAddressCollection {recipient})
                 .Build();
@@ -206,7 +205,7 @@ namespace Starter.Net.Api.Controllers
 
             var builder = new MailMessageBuilder();
             var recipient = new MailAddress(user.Email, user.UserName);
-            var mail = builder.From(new MailAddress("no-reply@starter.net", "Starter.Net"))
+            var mail = builder.From(new MailAddress(_mailConfig.DefaultSender.From, _mailConfig.DefaultSender.Name))
                 .WithSubject("Password Reset Successful")
                 .WithPlainTextBody("Password Reset")
                 .AddRecipients(new MailAddressCollection() {recipient})
