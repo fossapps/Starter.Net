@@ -12,7 +12,6 @@ using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
 using Starter.Net.Api.Services;
 using Starter.Net.Api.ViewModels;
-using Starter.Net.Startup.Services;
 
 namespace Starter.Net.Api.Controllers
 {
@@ -22,8 +21,6 @@ namespace Starter.Net.Api.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly IUserService _userService;
-        private readonly IUuidService _uuidService;
-        private readonly ITokenFactory _tokenFactory;
         private readonly IUsersRepository _usersRepository;
         private readonly IMailService _mailService;
         private readonly Mail _mailConfig;
@@ -32,8 +29,6 @@ namespace Starter.Net.Api.Controllers
         public AuthController(
             UserManager<User> userManager,
             IUserService userService,
-            IUuidService uuidService,
-            ITokenFactory tokenFactory,
             IUsersRepository usersRepository,
             IMailService mailService,
             IOptions<Mail> mailConfig,
@@ -42,8 +37,6 @@ namespace Starter.Net.Api.Controllers
         {
             _userManager = userManager;
             _userService = userService;
-            _uuidService = uuidService;
-            _tokenFactory = tokenFactory;
             _usersRepository = usersRepository;
             _mailService = mailService;
             _refreshTokenRepository = refreshTokenRepository;
@@ -61,7 +54,7 @@ namespace Starter.Net.Api.Controllers
                 Email = userRegistrationRequest.Email,
                 UserName = userRegistrationRequest.Username
             };
-            var result = await _userManager.CreateAsync(user, userRegistrationRequest.Password);
+            var (result, userRegistrationSuccessResponse) = await _userService.CreateUser(user, userRegistrationRequest.Password);
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
@@ -70,14 +63,7 @@ namespace Starter.Net.Api.Controllers
                 }
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-
-            var response = new UserRegistrationSuccessResponse()
-            {
-                Id = user.Id,
-                Email = user.Email,
-                Username = user.UserName
-            };
-            return Created("/users/" + response.Id, response);
+            return Created("/users/" + userRegistrationSuccessResponse.Id, userRegistrationSuccessResponse);
         }
 
         [HttpPost("authorize")]
@@ -151,16 +137,6 @@ namespace Starter.Net.Api.Controllers
         public async Task<string> Check()
         {
             return "ok";
-        }
-
-        private RefreshToken GetRefreshToken(string userId)
-        {
-            return new RefreshToken()
-            {
-                Id = _uuidService.GenerateUuId(),
-                User = userId,
-                Value = _tokenFactory.GenerateToken(32)
-            };
         }
 
         private static string ProcessErrorResult(Microsoft.AspNetCore.Identity.SignInResult result)

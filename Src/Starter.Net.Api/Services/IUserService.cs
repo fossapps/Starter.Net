@@ -12,5 +12,8 @@ namespace Starter.Net.Api.Services
         Task<(SignInResult signInResult, LoginSuccessResponse login)> Authenticate(string login, string password);
         Task<RefreshTokenResponse> RefreshAuthentication(RefreshToken token);
         void RequestPasswordReset(User user);
+
+        Task<(IdentityResult result, UserRegistrationSuccessResponse registrationSuccessResponse)> CreateUser(
+            User user, string password);
     }
 }

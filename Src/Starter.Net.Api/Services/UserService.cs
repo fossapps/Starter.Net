@@ -62,6 +62,21 @@ namespace Starter.Net.Api.Services
             _mailService.Send(mail);
         }
 
+        public async Task<(IdentityResult result, UserRegistrationSuccessResponse registrationSuccessResponse)> CreateUser(User user, string password)
+        {
+            var (result, registrationSuccessResponse, token) = await _usersRepository.Create(user, password);
+            if (!result.Succeeded)
+            {
+                return (result, registrationSuccessResponse);
+            }
+
+            user.NormalizedEmail = user.Email.ToUpper();
+            user.NormalizedUserName = user.UserName.ToUpper();
+            var mail = new ActivationEmail(_mailConfig);
+            _mailService.Send(mail.Build("/activate/" + token, new MailAddress(user.Email, user.UserName)));
+            return (result, registrationSuccessResponse);
+        }
+
         public Task<(SignInResult signInResult, LoginSuccessResponse login)> Authenticate(string login, string password)
         {
             return login.Contains("@")
