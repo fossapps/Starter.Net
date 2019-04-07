@@ -13,6 +13,13 @@ namespace Starter.Net.Api.Repositories
             _userManager = userManager;
         }
 
+        public Task<User> Find(string emailOrUsername)
+        {
+            return emailOrUsername.Contains("@")
+                ? FindByEmailAsync(emailOrUsername)
+                : FindByNameAsync(emailOrUsername);
+        }
+
         public Task<User> FindByNameAsync(string username)
         {
             return _userManager.FindByNameAsync(username);
