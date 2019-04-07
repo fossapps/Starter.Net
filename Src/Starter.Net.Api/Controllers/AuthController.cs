@@ -1,19 +1,19 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Starter.Net.Api.Configs;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Services;
 using Starter.Net.Api.ViewModels;
-using Starter.Net.Startup.Middlewares;
 using Starter.Net.Startup.Services;
-using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Starter.Net.Api.Controllers
 {
@@ -26,14 +26,16 @@ namespace Starter.Net.Api.Controllers
         private readonly IUuidService _uuidService;
         private readonly ITokenFactory _tokenFactory;
         private readonly ApplicationContext _db;
+        private readonly JwtBearerOptions _jwt;
 
-        public AuthController(UserManager<User> userManager, IUserService userService, IUuidService uuidService, ITokenFactory tokenFactory, ApplicationContext db)
+        public AuthController(UserManager<User> userManager, IUserService userService, IUuidService uuidService, ITokenFactory tokenFactory, ApplicationContext db, IOptions<Configs.Authentication> authentication)
         {
             _userManager = userManager;
             _userService = userService;
             _uuidService = uuidService;
             _tokenFactory = tokenFactory;
             _db = db;
+            _jwt = authentication.Value.JwtBearerOptions;
         }
 
         [HttpPost("register")]
@@ -76,11 +78,13 @@ namespace Starter.Net.Api.Controllers
                 return Unauthorized(ProcessErrorResult(signInResult));
             }
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("qwertyuiopasdfghjklzxcvbnm123456");
+            var key = Encoding.ASCII.GetBytes(_jwt.SigningKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
+                Issuer = _jwt.Issuer,
+                Audience = _jwt.Audience,
                 Subject = new ClaimsIdentity(principal.Claims),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddMinutes(_jwt.JwtTtl),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var jwt = tokenHandler.CreateToken(tokenDescriptor);
@@ -92,6 +96,13 @@ namespace Starter.Net.Api.Controllers
                 Jwt = tokenHandler.WriteToken(jwt)
             };
             return Ok(loginResponse);
+        }
+
+        [HttpGet("check")]
+        [Authorize]
+        public async Task<string> Check()
+        {
+            return "ok";
         }
 
         private RefreshToken GetRefreshToken(string userId)

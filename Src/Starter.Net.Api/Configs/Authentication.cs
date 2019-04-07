@@ -24,8 +24,10 @@ namespace Starter.Net.Api.Configs
 
     public class JwtBearerOptions
     {
-        public string Authority { set; get; }
         public string Audience { set; get; }
+        public string SigningKey { set; get; }
+        public string Issuer { set; get; }
+        public int JwtTtl { set; get; }
     }
 
     public class Authentication
