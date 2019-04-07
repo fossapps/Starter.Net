@@ -30,6 +30,7 @@ namespace Starter.Net.Api.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly IMailService _mailService;
         private readonly Mail _mailConfig;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
 
         public AuthController(
             UserManager<User> userManager,
@@ -37,11 +38,11 @@ namespace Starter.Net.Api.Controllers
             IUuidService uuidService,
             ITokenFactory tokenFactory,
             ApplicationContext db,
-            IOptions<Configs.Authentication> authentication,
             IUsersRepository usersRepository,
             SignInManager<User> signInManager,
             IMailService mailService,
-            IOptions<Mail> mailConfig
+            IOptions<Mail> mailConfig,
+            IRefreshTokenRepository refreshTokenRepository
             )
         {
             _userManager = userManager;
@@ -52,6 +53,7 @@ namespace Starter.Net.Api.Controllers
             _usersRepository = usersRepository;
             _signInManager = signInManager;
             _mailService = mailService;
+            _refreshTokenRepository = refreshTokenRepository;
             _mailConfig = mailConfig.Value;
         }
 
@@ -97,8 +99,7 @@ namespace Starter.Net.Api.Controllers
 
             var jwt = _tokenFactory.GenerateJwtToken(principal);
             var refreshToken = GetRefreshToken(user.Id);
-            _db.RefreshTokens.Add(refreshToken);
-            _db.SaveChanges();
+            _refreshTokenRepository.Add(refreshToken);
             var loginResponse = new LoginSuccessResponse()
             {
                 RefreshToken = refreshToken.Value,
@@ -130,7 +131,7 @@ namespace Starter.Net.Api.Controllers
         [ProducesResponseType(typeof(RefreshTokenResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Refresh([FromHeader] string authorization)
         {
-            var token = _db.RefreshTokens.SingleOrDefault(x => x.Value == GetBearerToken(authorization));
+            var token = _refreshTokenRepository.FindByToken(GetBearerToken(authorization));
             if (token == null)
             {
                 return BadRequest();
@@ -144,7 +145,7 @@ namespace Starter.Net.Api.Controllers
             return Ok(res);
         }
 
-        private string GetBearerToken(string authorizationHeader)
+        private static string GetBearerToken(string authorizationHeader)
         {
             return authorizationHeader.Substring("Bearer ".Length).Trim();
         }
