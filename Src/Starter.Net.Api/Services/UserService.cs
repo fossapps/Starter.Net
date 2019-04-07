@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
+using Starter.Net.Api.ViewModels;
 
 namespace Starter.Net.Api.Services
 {
@@ -10,11 +11,27 @@ namespace Starter.Net.Api.Services
     {
         private readonly SignInManager<User> _signInManager;
         private readonly IUsersRepository _usersRepository;
+        private readonly ITokenFactory _tokenFactory;
 
-        public UserService(SignInManager<User> signInManager, IUsersRepository usersRepository)
+        public UserService(
+            SignInManager<User> signInManager,
+            IUsersRepository usersRepository,
+            ITokenFactory tokenFactory
+            )
         {
             _signInManager = signInManager;
             _usersRepository = usersRepository;
+            _tokenFactory = tokenFactory;
+        }
+
+        public async Task<RefreshTokenResponse> RefreshAuthentication(RefreshToken token)
+        {
+            var user = await _usersRepository.FindByUserIdAsync(token.User);
+            var principal = await _signInManager.CreateUserPrincipalAsync(user);
+            return new RefreshTokenResponse()
+            {
+                Token = _tokenFactory.GenerateJwtToken(principal)
+            };
         }
 
         public Task<(SignInResult signInResult, ClaimsPrincipal principal, User user)> Authenticate(string login, string password)
