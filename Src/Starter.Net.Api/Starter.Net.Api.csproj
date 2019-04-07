@@ -16,5 +16,8 @@
     <ItemGroup>
       <ProjectReference Include="..\Starter.Net.Startup\Starter.Net.Startup.csproj" />
     </ItemGroup>
+    <ItemGroup>
+        <Content Include="./Mails/Content/Templates/*" CopyToPublishDirectory="true" />
+    </ItemGroup>
 
 </Project>
