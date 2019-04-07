@@ -1,16 +1,19 @@
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Configs;
 using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;
@@ -170,7 +173,7 @@ namespace Starter.Net.Api.Controllers
         }
 
         [HttpGet("check")]
-        [Authorize]
+        [RequirePermission("sudo")]
         public async Task<string> Check()
         {
             return "ok";

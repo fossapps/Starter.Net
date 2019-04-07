@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -11,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Configs;
 using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;
@@ -48,6 +52,16 @@ namespace Starter.Net.Api
                 .AddEntityFrameworkStores<ApplicationContext>()
                 .AddDefaultTokenProviders();
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            services.AddAuthorization(config =>
+            {
+                foreach (var permission in GetAllPermissions())
+                {
+                    config.AddPolicy(permission, builder =>
+                        {
+                            builder.RequireClaim(CustomClaims.Permission, permission);
+                        });
+                }
+            });
 
             services
                 .AddAuthentication(options =>
@@ -72,6 +86,13 @@ namespace Starter.Net.Api
             services.AddMvc()
                 .AddNewtonsoftJson();
             services.Configure<IdentityOptions>(ConfigureIdentityOptions);
+        }
+
+        private IEnumerable<string> GetAllPermissions()
+        {
+            return typeof(Permissions)
+                .GetFields(BindingFlags.Static & BindingFlags.Public)
+                .Select(x => x.Name);
         }
 
         private void ConfigureIdentityOptions(IdentityOptions options)
