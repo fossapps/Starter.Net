@@ -14,7 +14,7 @@ namespace Starter.Net.Api.Mails.Content
 
         protected static string GetTemplateByName(string name)
         {
-            return File.ReadAllText($"./Templates/{name}.html");
+            return File.ReadAllText($"./Mails/Content/Templates/{name}.html");
         }
 
         protected string GetTemplate()
