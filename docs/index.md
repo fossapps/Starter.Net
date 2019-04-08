@@ -7,16 +7,16 @@ Feature list for this project as of now planned are the following without any or
 
 - [ ] Swagger Docs (`spec.json` endpoint and docs)
 - [ ] Linting
-- [ ] Pre configured endpoints for auth
+- [x] Pre configured endpoints for auth
 - [ ] Some basic middlewares
-- [ ] Docker image generation after doing CI testing
+- [x] Docker image generation after doing CI testing
 - [ ] Logging (probably with kibana, but maybe using interface instead)
 - [ ] Social Logins (facebook, linkedIn, etc)
 - [ ] Single Sign In (maybe?)
 - [ ] Recaptcha support
-- [ ] `ViewModel` to ensure communication is completely TypeSafe.
-- [ ] Basic Auth with permission model
-- [ ] Email support with driver architecture (so you can swap out your provider)
+- [x] `ViewModel` to ensure communication is completely TypeSafe.
+- [x] Auth with permission model
+- [x] Email support with driver architecture (so you can swap out your provider)
 - [ ] Easy Email Creation (although this might just be a separate project)
 - [ ] Feature Toggles (this isn't just simple on/off toggles, rather toggles for group of users,
 - [ ] imagine you only want to turn on some feature to some group of people, or only 1% of your customer)
