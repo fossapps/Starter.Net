@@ -48,7 +48,7 @@ namespace Starter.Net.Api.Controllers
                 }
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            return Created("/users/" + userRegistrationSuccessResponse.Id, userRegistrationSuccessResponse);
+            return CreatedAtAction("GetById", "Users", new { id = userRegistrationSuccessResponse.Id }, userRegistrationSuccessResponse);
         }
 
         [HttpPost("authorize")]
