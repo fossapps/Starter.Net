@@ -92,28 +92,28 @@ namespace Starter.Net.Api.Services
             return (result, registrationSuccessResponse);
         }
 
-        public Task<(SignInResult signInResult, LoginSuccessResponse login)> Authenticate(string login, string password)
+        public Task<(SignInResult signInResult, LoginSuccessResponse login)> Authenticate(LoginRequest request)
         {
-            return login.Contains("@")
-                ? AuthenticateByEmail(login, password)
-                : AuthenticateByUsername(login, password);
+            return request.Login.Contains("@")
+                ? AuthenticateByEmail(request)
+                : AuthenticateByUsername(request);
         }
 
-        public async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateByUsername(string username, string password)
+        public async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateByUsername(LoginRequest request)
         {
-            var user = await _usersRepository.FindByNameAsync(username);
-            return await AuthenticateUser(user, password);
+            var user = await _usersRepository.FindByNameAsync(request.Login);
+            return await AuthenticateUser(user, request);
         }
 
-        public async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateByEmail(string email, string password)
+        public async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateByEmail(LoginRequest login)
         {
-            var user = await _usersRepository.FindByEmailAsync(email);
-            return await AuthenticateUser(user, password);
+            var user = await _usersRepository.FindByEmailAsync(login.Login);
+            return await AuthenticateUser(user, login);
         }
 
-        private async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateUser(User user, string password)
+        private async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateUser(User user, LoginRequest login)
         {
-            var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, true);
+            var signInResult = await _signInManager.PasswordSignInAsync(user, login.Password, false, true);
             if (!signInResult.Succeeded)
             {
                 return (signInResult, null);
@@ -124,7 +124,10 @@ namespace Starter.Net.Api.Services
             {
                 Id = _uuidService.GenerateUuId(),
                 User = user.Id,
-                Value = _tokenFactory.GenerateToken(32)
+                Value = _tokenFactory.GenerateToken(32),
+                Location = login.Location,
+                Useragent = login.UserAgent,
+                IpAddress = login.IpAddress
             };
             _refreshTokenRepository.Add(refreshToken);
             var res = new LoginSuccessResponse()

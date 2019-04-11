@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +9,7 @@ using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
 using Starter.Net.Api.Services;
 using Starter.Net.Api.ViewModels;
+using LoginRequest = Starter.Net.Api.ViewModels.LoginRequest;
 
 namespace Starter.Net.Api.Controllers
 {
@@ -57,9 +57,17 @@ namespace Starter.Net.Api.Controllers
 
         [HttpPost("new")]
         [ProducesResponseType(typeof(LoginSuccessResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Login(LoginRequest loginRequest)
+        public async Task<IActionResult> Login(LoginRequest loginRequest, [FromHeader(Name = "User-Agent")] string useragent)
         {
-            var (signInResult, res) = await _userService.Authenticate(loginRequest.Login, loginRequest.Password);
+            var request = new Services.LoginRequest()
+            {
+                Login = loginRequest.Login,
+                Password = loginRequest.Password,
+                Location = this.GetRoughLocation(),
+                IpAddress = this.GetIpAddress(),
+                UserAgent = useragent
+            };
+            var (signInResult, res) = await _userService.Authenticate(request);
             if (!signInResult.Succeeded)
             {
                 return Unauthorized(ProcessErrorResult(signInResult));
