@@ -1,4 +1,8 @@
+using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Starter.Net.Api.Authentication;
@@ -11,13 +15,13 @@ namespace Starter.Net.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class SessionController : ControllerBase
     {
         private readonly IUserService _userService;
         private readonly IUsersRepository _usersRepository;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-        public AuthController(
+        public SessionController(
             IUserService userService,
             IUsersRepository usersRepository,
             IRefreshTokenRepository refreshTokenRepository
@@ -51,7 +55,7 @@ namespace Starter.Net.Api.Controllers
             return CreatedAtAction("GetById", "Users", new { id = userRegistrationSuccessResponse.Id }, userRegistrationSuccessResponse);
         }
 
-        [HttpPost("authorize")]
+        [HttpPost("new")]
         [ProducesResponseType(typeof(LoginSuccessResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Login(LoginRequest loginRequest)
         {
@@ -94,6 +98,42 @@ namespace Starter.Net.Api.Controllers
         private static string GetBearerToken(string authorizationHeader)
         {
             return authorizationHeader.Substring("Bearer ".Length).Trim();
+        }
+
+        [HttpGet("list")]
+        [Authorize]
+        public IActionResult List()
+        {
+            // UserClaims.UserId, get all refresh tokens, return them
+            var subject = User.Claims.FirstOrDefault(c => c.Type == "sub");
+            if (subject == null)
+            {
+                throw new Exception("subject not found");
+            }
+            var tokens = _refreshTokenRepository
+                .FindForUser(subject.Value)
+                .Select(x => new RefreshTokenResponse() {Token = x.Value});
+            return Ok(tokens);
+        }
+
+        [HttpDelete("{refresh_token}")]
+        [Authorize]
+        public IActionResult Delete(string refreshToken)
+        {
+            // first check if the refresh token belongs to current user
+            var subject = User.Claims.FirstOrDefault(c => c.Type == "sub");
+            if (subject == null)
+            {
+                throw new Exception("subject not found");
+            }
+
+            var token = _refreshTokenRepository.FindByToken(refreshToken);
+            if (token.User != subject.Value)
+            {
+                throw new Exception("Token doesn't belong to this user");
+            }
+            _refreshTokenRepository.DeleteByToken(token.Value);
+            return Ok();
         }
 
         [HttpPost("reset")]

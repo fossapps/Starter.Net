@@ -27,5 +27,17 @@ namespace Starter.Net.Api.Repositories
         {
             return _db.RefreshTokens.Where(x => x.User == userId);
         }
+
+        public void DeleteByToken(string refreshToken)
+        {
+            _db.RefreshTokens.Remove(new RefreshToken() {Value = refreshToken});
+            _db.SaveChangesAsync();
+        }
+
+        public void DeleteById(string id)
+        {
+            _db.RefreshTokens.Remove(new RefreshToken() {Id= id});
+            _db.SaveChangesAsync();
+        }
     }
 }
