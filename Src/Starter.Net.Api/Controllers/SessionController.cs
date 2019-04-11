@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -57,6 +58,7 @@ namespace Starter.Net.Api.Controllers
 
         [HttpPost("new")]
         [ProducesResponseType(typeof(LoginSuccessResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login(LoginRequest loginRequest, [FromHeader(Name = "User-Agent")] string useragent)
         {
             var request = new Services.LoginRequest()
@@ -77,6 +79,7 @@ namespace Starter.Net.Api.Controllers
 
         [HttpPost("request_reset")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Reset(ForgotPasswordRequest request)
         {
             // once rate limiting is done, we can limit by two keys, one with request.Login and another with client's IP
@@ -93,6 +96,7 @@ namespace Starter.Net.Api.Controllers
 
         [HttpPost("refresh")]
         [ProducesResponseType(typeof(RefreshTokenResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Refresh([FromHeader] string authorization)
         {
             var token = _refreshTokenRepository.FindByToken(GetBearerToken(authorization));
@@ -110,6 +114,8 @@ namespace Starter.Net.Api.Controllers
 
         [HttpGet("list")]
         [Authorize]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(IEnumerable<RefreshTokenResponse>), StatusCodes.Status200OK)]
         public IActionResult List()
         {
             // UserClaims.UserId, get all refresh tokens, return them
@@ -126,6 +132,9 @@ namespace Starter.Net.Api.Controllers
 
         [HttpDelete("{refresh_token}")]
         [Authorize]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
         public IActionResult Delete(string refreshToken)
         {
             // first check if the refresh token belongs to current user
@@ -138,13 +147,15 @@ namespace Starter.Net.Api.Controllers
             var token = _refreshTokenRepository.FindByToken(refreshToken);
             if (token.User != subject.Value)
             {
-                throw new Exception("Token doesn't belong to this user");
+                return Forbid("Invalid Operation");
             }
             _refreshTokenRepository.DeleteByToken(token.Value);
             return Ok();
         }
 
         [HttpPost("reset")]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> ResetPassword(PasswordResetRequest request)
         {
             var result = await _userService.ResetPassword(request);
