@@ -36,5 +36,6 @@ namespace Starter.Net.Api.Configs
         public Lockouts Lockouts { set; get; }
         public UsernameRequirements UsernameRequirements { set; get; }
         public JwtBearerOptions JwtBearerOptions { set; get; }
+        public bool InvitationOnlyMode { set; get; }
     }
 }

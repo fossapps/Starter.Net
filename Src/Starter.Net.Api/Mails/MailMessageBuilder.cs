@@ -17,6 +17,12 @@ namespace Starter.Net.Api.Mails
             _message = message;
         }
 
+        public MailMessageBuilder AddRecipient(MailAddress address)
+        {
+            _message.To.Add(address);
+            return this;
+        }
+
         public MailMessageBuilder AddRecipients(MailAddressCollection addressCollection)
         {
             foreach (var mailAddress in addressCollection)
