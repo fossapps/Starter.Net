@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +11,6 @@ using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
 using Starter.Net.Api.Services;
 using Starter.Net.Api.ViewModels;
-using LoginRequest = Starter.Net.Api.ViewModels.LoginRequest;
 
 namespace Starter.Net.Api.Controllers
 {
@@ -59,12 +59,13 @@ namespace Starter.Net.Api.Controllers
         [HttpPost("new")]
         [ProducesResponseType(typeof(LoginSuccessResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Login(LoginRequest loginRequest, [FromHeader(Name = "User-Agent")] string useragent)
+        public async Task<IActionResult> Login([FromHeader] string authorization, [FromHeader(Name = "User-Agent")] string useragent)
         {
+            var (login, password) = GetBasicAuthData(authorization);
             var request = new Services.LoginRequest()
             {
-                Login = loginRequest.Login,
-                Password = loginRequest.Password,
+                Login = login,
+                Password = password,
                 Location = this.GetRoughLocation(),
                 IpAddress = this.GetIpAddress(),
                 UserAgent = useragent
@@ -110,6 +111,13 @@ namespace Starter.Net.Api.Controllers
         private static string GetBearerToken(string authorizationHeader)
         {
             return authorizationHeader.Substring("Bearer ".Length).Trim();
+        }
+
+        private static (string, string) GetBasicAuthData(string authorizationHeader)
+        {
+            var token = authorizationHeader.Substring("Basic ".Length).Trim();
+            var parts = Encoding.UTF8.GetString(Convert.FromBase64String(token)).Split(":");
+            return (parts[0], parts[1]);
         }
 
         [HttpGet("list")]
