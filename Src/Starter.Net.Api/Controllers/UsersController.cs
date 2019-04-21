@@ -1,8 +1,10 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
+using Starter.Net.Api.Services;
 using Starter.Net.Api.ViewModels;
 
 namespace Starter.Net.Api.Controllers
@@ -12,10 +14,12 @@ namespace Starter.Net.Api.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUsersRepository _usersRepository;
+        private readonly IUserService _userService;
 
-        public UsersController(IUsersRepository usersRepository)
+        public UsersController(IUsersRepository usersRepository, IUserService userService)
         {
             _usersRepository = usersRepository;
+            _userService = userService;
         }
 
         [HttpHead("{username}")]
@@ -44,6 +48,14 @@ namespace Starter.Net.Api.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpPost("invite")]
+        [RequirePermission("beta.invite")]
+        public async Task<IActionResult> Invite(InvitationRequest request)
+        {
+            var invitation = await _userService.Invite(request.Email, this.GetUserId(), this.GetUserName());
+            return Ok(invitation);
         }
 
         [HttpGet("name/{username}")]

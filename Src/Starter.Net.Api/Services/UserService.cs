@@ -22,6 +22,7 @@ namespace Starter.Net.Api.Services
         private readonly Mail _mailConfig;
         private readonly UserManager<User> _userManager;
         private readonly IMailService _mailService;
+        private readonly IInvitationRepository _invitationRepository;
 
         public UserService(
             SignInManager<User> signInManager,
@@ -31,7 +32,8 @@ namespace Starter.Net.Api.Services
             IRefreshTokenRepository refreshTokenRepository,
             IOptions<Mail> mailConfig,
             UserManager<User> userManager,
-            IMailService mailService
+            IMailService mailService,
+            IInvitationRepository invitationRepository
             )
         {
             _signInManager = signInManager;
@@ -41,6 +43,7 @@ namespace Starter.Net.Api.Services
             _refreshTokenRepository = refreshTokenRepository;
             _userManager = userManager;
             _mailService = mailService;
+            _invitationRepository = invitationRepository;
             _mailConfig = mailConfig.Value;
         }
 
@@ -79,6 +82,12 @@ namespace Starter.Net.Api.Services
 
         public async Task<(IdentityResult result, UserRegistrationSuccessResponse registrationSuccessResponse)> CreateUser(User user, string password)
         {
+            var invited = await _invitationRepository.IsInvited(user.Email);
+            if (!invited)
+            {
+                var identityResult = IdentityResult.Failed(new[] {new IdentityError() {Code = "INVITATION REQUIRED", Description = "Email not invited"}});
+                return (identityResult, null);
+            }
             var (result, registrationSuccessResponse, token) = await _usersRepository.Create(user, password);
             if (!result.Succeeded)
             {
@@ -90,6 +99,18 @@ namespace Starter.Net.Api.Services
             var mail = new ActivationEmail(_mailConfig);
             _mailService.Send(mail.Build("/activate/" + token, new MailAddress(user.Email, user.UserName)));
             return (result, registrationSuccessResponse);
+        }
+
+        public async Task<Invitation> Invite(string emailTo, string fromUserId, string fromUserName)
+        {
+            var invited = await _invitationRepository.IsInvited(emailTo);
+            if (invited)
+            {
+                return null;
+            }
+            var mailBuilder = new InvitationEmail(_mailConfig);
+            _mailService.Send(mailBuilder.Build(new MailAddress(emailTo), fromUserName, "/app/signup"));
+            return await _invitationRepository.InviteUser(fromUserId, emailTo);
         }
 
         public Task<(SignInResult signInResult, LoginSuccessResponse login)> Authenticate(LoginRequest request)

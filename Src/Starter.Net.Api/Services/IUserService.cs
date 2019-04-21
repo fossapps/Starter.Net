@@ -14,6 +14,8 @@ namespace Starter.Net.Api.Services
         void RequestPasswordReset(User user);
         Task<IdentityResult> ResetPassword(PasswordResetRequest request);
 
+        Task<Invitation> Invite(string emailTo, string fromUserId, string fromUserName);
+
         Task<(IdentityResult result, UserRegistrationSuccessResponse registrationSuccessResponse)> CreateUser(
             User user, string password);
     }

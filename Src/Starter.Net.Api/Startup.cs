@@ -38,6 +38,7 @@ namespace Starter.Net.Api
             AddConfiguration(services, Configuration);
             base.ConfigureServices(services);
             services.AddSingleton<IMailService, SmtpMailService>();
+            services.AddScoped<IInvitationRepository, InvitationRepository>();
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRolesRepository, RolesRepository>();

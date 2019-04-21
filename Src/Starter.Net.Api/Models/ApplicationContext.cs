@@ -12,6 +12,7 @@ namespace Starter.Net.Api.Models
     {
         public DbSet<User> Users { set; get; }
         public DbSet<RefreshToken> RefreshTokens { set; get; }
+        public DbSet<Invitation> Invitations { set; get; }
         private readonly Database _db;
 
         public ApplicationContext(DbContextOptions options, IOptions<Database> dbOption) : base(options)

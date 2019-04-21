@@ -36,7 +36,6 @@ namespace Starter.Net.Api.Controllers
         [HttpPost("register")]
         [ProducesResponseType(typeof(UserRegistrationSuccessResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-
         public async Task<IActionResult> Register(UserRegistrationRequest userRegistrationRequest)
         {
             var user = new User
@@ -62,7 +61,7 @@ namespace Starter.Net.Api.Controllers
         public async Task<IActionResult> Login([FromHeader] string authorization, [FromHeader(Name = "User-Agent")] string useragent)
         {
             var (login, password) = GetBasicAuthData(authorization);
-            var request = new Services.LoginRequest()
+            var request = new LoginRequest()
             {
                 Login = login,
                 Password = password,
