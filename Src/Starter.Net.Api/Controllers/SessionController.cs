@@ -33,28 +33,6 @@ namespace Starter.Net.Api.Controllers
             _refreshTokenRepository = refreshTokenRepository;
         }
 
-        [HttpPost("register")]
-        [ProducesResponseType(typeof(UserRegistrationSuccessResponse), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Register(UserRegistrationRequest userRegistrationRequest)
-        {
-            var user = new User
-            {
-                Email = userRegistrationRequest.Email,
-                UserName = userRegistrationRequest.Username
-            };
-            var (result, userRegistrationSuccessResponse) = await _userService.CreateUser(user, userRegistrationRequest.Password);
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("Errors", error.Description);
-                }
-                return BadRequest(new ValidationProblemDetails(ModelState));
-            }
-            return CreatedAtAction("GetById", "Users", new { id = userRegistrationSuccessResponse.Id }, userRegistrationSuccessResponse);
-        }
-
         [HttpPost("new")]
         [ProducesResponseType(typeof(LoginSuccessResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
