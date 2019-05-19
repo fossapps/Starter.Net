@@ -7,10 +7,10 @@ namespace Starter.Net.Api.Repositories
 {
     public interface IUsersRepository
     {
-        Task<User> Find(string emailOrUsername);
-        Task<User> FindByNameAsync(string username);
-        Task<User> FindByUserIdAsync(string userId);
-        Task<User> FindByEmailAsync(string email);
-        Task<(IdentityResult result, UserRegistrationSuccessResponse user, string activationToken)> Create(User user, string password);
+        Task<Models.User> Find(string emailOrUsername);
+        Task<Models.User> FindByNameAsync(string username);
+        Task<Models.User> FindByUserIdAsync(string userId);
+        Task<Models.User> FindByEmailAsync(string email);
+        Task<(IdentityResult result, UserRegistrationSuccessResponse user, string activationToken)> Create(Models.User user, string password);
     }
 }

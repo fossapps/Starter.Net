@@ -10,10 +10,10 @@ namespace Starter.Net.Api.Repositories
 {
     public class RolesRepository : IRolesRepository
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<Models.User> _userManager;
         private readonly IRoleStore<IdentityRole> _roleStore;
 
-        public RolesRepository(UserManager<User> userManager, IRoleStore<IdentityRole> roleStore)
+        public RolesRepository(UserManager<Models.User> userManager, IRoleStore<IdentityRole> roleStore)
         {
             _userManager = userManager;
             _roleStore = roleStore;
@@ -34,7 +34,7 @@ namespace Starter.Net.Api.Repositories
             return _roleStore.FindByNameAsync(roleName, CancellationToken.None);
         }
 
-        public async Task<IList<string>> GetRolesByUser(User user)
+        public async Task<IList<string>> GetRolesByUser(Models.User user)
         {
             return await _userManager.GetRolesAsync(user);
         }

@@ -14,24 +14,24 @@ namespace Starter.Net.Api.Services
 {
     public class UserService: IUserService
     {
-        private readonly SignInManager<User> _signInManager;
+        private readonly SignInManager<Models.User> _signInManager;
         private readonly IUsersRepository _usersRepository;
         private readonly ITokenFactory _tokenFactory;
         private readonly IUuidService _uuidService;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly Mail _mailConfig;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<Models.User> _userManager;
         private readonly IMailService _mailService;
         private readonly IInvitationRepository _invitationRepository;
 
         public UserService(
-            SignInManager<User> signInManager,
+            SignInManager<Models.User> signInManager,
             IUsersRepository usersRepository,
             ITokenFactory tokenFactory,
             IUuidService uuidService,
             IRefreshTokenRepository refreshTokenRepository,
             IOptions<Mail> mailConfig,
-            UserManager<User> userManager,
+            UserManager<Models.User> userManager,
             IMailService mailService,
             IInvitationRepository invitationRepository
             )
@@ -57,7 +57,7 @@ namespace Starter.Net.Api.Services
             };
         }
 
-        public async void RequestPasswordReset(User user)
+        public async void RequestPasswordReset(Models.User user)
         {
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var mailBuilder = new ForgotPasswordEmail(_mailConfig);
@@ -80,7 +80,7 @@ namespace Starter.Net.Api.Services
             return result;
         }
 
-        public async Task<(IdentityResult result, UserRegistrationSuccessResponse registrationSuccessResponse)> CreateUser(User user, string password)
+        public async Task<(IdentityResult result, UserRegistrationSuccessResponse registrationSuccessResponse)> CreateUser(Models.User user, string password)
         {
             var invited = await _invitationRepository.IsInvited(user.Email);
             if (!invited)
@@ -132,7 +132,7 @@ namespace Starter.Net.Api.Services
             return await AuthenticateUser(user, login);
         }
 
-        private async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateUser(User user, LoginRequest login)
+        private async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateUser(Models.User user, LoginRequest login)
         {
             var signInResult = await _signInManager.PasswordSignInAsync(user, login.Password, false, true);
             if (!signInResult.Succeeded)

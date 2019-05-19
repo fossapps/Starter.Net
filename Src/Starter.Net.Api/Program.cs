@@ -19,7 +19,7 @@ namespace Starter.Net.Api
                 var serviceProvider = scope.ServiceProvider;
                 try
                 {
-                    var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+                    var userManager = serviceProvider.GetRequiredService<UserManager<Models.User>>();
                     var options = serviceProvider.GetRequiredService<IOptions<InitDb>>();
                     DatabaseInitializer.SeedUsers(userManager, options).Wait();
                 }

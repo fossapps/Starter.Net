@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +20,9 @@ using Starter.Net.Api.Configs;
 using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
+using Starter.Net.Api.Scheduling;
 using Starter.Net.Api.Services;
+using Starter.Net.Api.User;
 
 namespace Starter.Net.Api
 {
@@ -40,6 +43,10 @@ namespace Starter.Net.Api
             services.AddSingleton<IMailService, SmtpMailService>();
             services.AddScoped<IInvitationRepository, InvitationRepository>();
             services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IEventService, EventService>();
+            services.AddScoped<ICalendarRepository, CalendarRepository>();
+            services.AddScoped<IUserCalendarService, UserCalendarService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRolesRepository, RolesRepository>();
             services.AddScoped<IRoleStore<IdentityRole>, RoleStore<IdentityRole>>();
@@ -47,7 +54,7 @@ namespace Starter.Net.Api
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddSingleton<ITokenFactory, TokenFactory>();
             services.AddDbContext<ApplicationContext>();
-            services.AddIdentity<User, IdentityRole>(options =>
+            services.AddIdentity<Models.User, IdentityRole>(options =>
                     {
                         options.ClaimsIdentity.UserIdClaimType = JwtRegisteredClaimNames.Sub;
                     })
@@ -79,6 +86,7 @@ namespace Starter.Net.Api
             services.AddMvc()
                 .AddNewtonsoftJson();
             services.Configure<IdentityOptions>(ConfigureIdentityOptions);
+            services.Configure<KestrelServerOptions>(x => { x.AllowSynchronousIO = true;});
         }
 
         private void ConfigureIdentityOptions(IdentityOptions options)
