@@ -1,5 +1,4 @@
 using System.Net.Mail;
-using Microsoft.Extensions.Options;
 using Starter.Net.Api.Configs;
 
 namespace Starter.Net.Api.Mails.Content
