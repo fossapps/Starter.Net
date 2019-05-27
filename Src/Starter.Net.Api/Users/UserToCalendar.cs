@@ -1,4 +1,4 @@
-namespace Starter.Net.Api.User
+namespace Starter.Net.Api.Users
 {
     public class UserToCalendar
     {

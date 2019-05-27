@@ -6,7 +6,7 @@ using Npgsql;
 using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Configs;
 using Starter.Net.Api.Scheduling;
-using Starter.Net.Api.User;
+using Starter.Net.Api.Users;
 
 namespace Starter.Net.Api.Models
 {

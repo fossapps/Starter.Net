@@ -11,12 +11,12 @@ namespace Starter.Net.Api.Services
         Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateByEmail(LoginRequest request);
         Task<(SignInResult signInResult, LoginSuccessResponse login)> Authenticate(LoginRequest login);
         Task<RefreshTokenResponse> RefreshAuthentication(RefreshToken token);
-        void RequestPasswordReset(Models.User user);
+        void RequestPasswordReset(User user);
         Task<IdentityResult> ResetPassword(PasswordResetRequest request);
 
         Task<Invitation> Invite(string emailTo, string fromUserId, string fromUserName);
 
         Task<(IdentityResult result, UserRegistrationSuccessResponse registrationSuccessResponse)> CreateUser(
-            Models.User user, string password);
+            User user, string password);
     }
 }

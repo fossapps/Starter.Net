@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Starter.Net.Api.Scheduling;
-using Starter.Net.Api.User;
+using Starter.Net.Api.Users;
 using Starter.Net.Api.ViewModels;
 using Calendar = Starter.Net.Api.Scheduling.Calendar;
 

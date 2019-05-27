@@ -27,7 +27,7 @@ namespace Starter.Net.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register(UserRegistrationRequest userRegistrationRequest)
         {
-            var user = new Models.User
+            var user = new User
             {
                 Email = userRegistrationRequest.Email,
                 UserName = userRegistrationRequest.Username
@@ -104,7 +104,7 @@ namespace Starter.Net.Api.Controllers
             return ProcessUserResult(await _usersRepository.FindByUserIdAsync(id));
         }
 
-        private IActionResult ProcessUserResult(Models.User user)
+        private IActionResult ProcessUserResult(User user)
         {
             if (user == null)
             {

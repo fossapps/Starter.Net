@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -15,14 +12,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Configs;
 using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
 using Starter.Net.Api.Scheduling;
 using Starter.Net.Api.Services;
-using Starter.Net.Api.User;
+using Starter.Net.Api.Users;
 
 namespace Starter.Net.Api
 {
@@ -54,7 +50,7 @@ namespace Starter.Net.Api
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddSingleton<ITokenFactory, TokenFactory>();
             services.AddDbContext<ApplicationContext>();
-            services.AddIdentity<Models.User, IdentityRole>(options =>
+            services.AddIdentity<User, IdentityRole>(options =>
                     {
                         options.ClaimsIdentity.UserIdClaimType = JwtRegisteredClaimNames.Sub;
                     })

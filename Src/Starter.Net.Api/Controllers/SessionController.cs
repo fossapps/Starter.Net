@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Starter.Net.Api.Authentication;
-using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
 using Starter.Net.Api.Services;
 using Starter.Net.Api.ViewModels;

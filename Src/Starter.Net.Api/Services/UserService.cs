@@ -14,24 +14,24 @@ namespace Starter.Net.Api.Services
 {
     public class UserService: IUserService
     {
-        private readonly SignInManager<Models.User> _signInManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly IUsersRepository _usersRepository;
         private readonly ITokenFactory _tokenFactory;
         private readonly IUuidService _uuidService;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly Mail _mailConfig;
-        private readonly UserManager<Models.User> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly IMailService _mailService;
         private readonly IInvitationRepository _invitationRepository;
 
         public UserService(
-            SignInManager<Models.User> signInManager,
+            SignInManager<User> signInManager,
             IUsersRepository usersRepository,
             ITokenFactory tokenFactory,
             IUuidService uuidService,
             IRefreshTokenRepository refreshTokenRepository,
             IOptions<Mail> mailConfig,
-            UserManager<Models.User> userManager,
+            UserManager<User> userManager,
             IMailService mailService,
             IInvitationRepository invitationRepository
             )
@@ -51,13 +51,13 @@ namespace Starter.Net.Api.Services
         {
             var user = await _usersRepository.FindByUserIdAsync(token.User);
             var principal = await _signInManager.CreateUserPrincipalAsync(user);
-            return new RefreshTokenResponse()
+            return new RefreshTokenResponse
             {
                 Token = _tokenFactory.GenerateJwtToken(principal)
             };
         }
 
-        public async void RequestPasswordReset(Models.User user)
+        public async void RequestPasswordReset(User user)
         {
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var mailBuilder = new ForgotPasswordEmail(_mailConfig);
@@ -80,12 +80,12 @@ namespace Starter.Net.Api.Services
             return result;
         }
 
-        public async Task<(IdentityResult result, UserRegistrationSuccessResponse registrationSuccessResponse)> CreateUser(Models.User user, string password)
+        public async Task<(IdentityResult result, UserRegistrationSuccessResponse registrationSuccessResponse)> CreateUser(User user, string password)
         {
             var invited = await _invitationRepository.IsInvited(user.Email);
             if (!invited)
             {
-                var identityResult = IdentityResult.Failed(new[] {new IdentityError() {Code = "INVITATION REQUIRED", Description = "Email not invited"}});
+                var identityResult = IdentityResult.Failed(new IdentityError {Code = "INVITATION REQUIRED", Description = "Email not invited"});
                 return (identityResult, null);
             }
             var (result, registrationSuccessResponse, token) = await _usersRepository.Create(user, password);
@@ -132,7 +132,7 @@ namespace Starter.Net.Api.Services
             return await AuthenticateUser(user, login);
         }
 
-        private async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateUser(Models.User user, LoginRequest login)
+        private async Task<(SignInResult signInResult, LoginSuccessResponse login)> AuthenticateUser(User user, LoginRequest login)
         {
             var signInResult = await _signInManager.PasswordSignInAsync(user, login.Password, false, true);
             if (!signInResult.Succeeded)
@@ -141,7 +141,7 @@ namespace Starter.Net.Api.Services
             }
             var principal = await _signInManager.CreateUserPrincipalAsync(user);
             var jwt = _tokenFactory.GenerateJwtToken(principal);
-            var refreshToken = new RefreshToken()
+            var refreshToken = new RefreshToken
             {
                 Id = _uuidService.GenerateUuId(),
                 User = user.Id,
@@ -151,7 +151,7 @@ namespace Starter.Net.Api.Services
                 IpAddress = login.IpAddress
             };
             _refreshTokenRepository.Add(refreshToken);
-            var res = new LoginSuccessResponse()
+            var res = new LoginSuccessResponse
             {
                 RefreshToken = refreshToken.Value,
                 Jwt = jwt

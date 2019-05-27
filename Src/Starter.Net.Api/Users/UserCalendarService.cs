@@ -4,7 +4,7 @@ using Starter.Net.Api.Models;
 using Starter.Net.Api.Scheduling;
 using Starter.Net.Startup.Services;
 
-namespace Starter.Net.Api.User
+namespace Starter.Net.Api.Users
 {
     public class UserCalendarService: IUserCalendarService
     {

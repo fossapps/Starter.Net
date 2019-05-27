@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Starter.Net.Api.Scheduling;
 
-namespace Starter.Net.Api.User
+namespace Starter.Net.Api.Users
 {
     public interface IUserCalendarService
     {
