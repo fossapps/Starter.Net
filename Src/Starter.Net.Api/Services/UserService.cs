@@ -51,7 +51,7 @@ namespace Starter.Net.Api.Services
         {
             var user = await _usersRepository.FindByUserIdAsync(token.User);
             var principal = await _signInManager.CreateUserPrincipalAsync(user);
-            return new RefreshTokenResponse()
+            return new RefreshTokenResponse
             {
                 Token = _tokenFactory.GenerateJwtToken(principal)
             };
@@ -85,7 +85,7 @@ namespace Starter.Net.Api.Services
             var invited = await _invitationRepository.IsInvited(user.Email);
             if (!invited)
             {
-                var identityResult = IdentityResult.Failed(new[] {new IdentityError() {Code = "INVITATION REQUIRED", Description = "Email not invited"}});
+                var identityResult = IdentityResult.Failed(new IdentityError {Code = "INVITATION REQUIRED", Description = "Email not invited"});
                 return (identityResult, null);
             }
             var (result, registrationSuccessResponse, token) = await _usersRepository.Create(user, password);
@@ -141,7 +141,7 @@ namespace Starter.Net.Api.Services
             }
             var principal = await _signInManager.CreateUserPrincipalAsync(user);
             var jwt = _tokenFactory.GenerateJwtToken(principal);
-            var refreshToken = new RefreshToken()
+            var refreshToken = new RefreshToken
             {
                 Id = _uuidService.GenerateUuId(),
                 User = user.Id,
@@ -151,7 +151,7 @@ namespace Starter.Net.Api.Services
                 IpAddress = login.IpAddress
             };
             _refreshTokenRepository.Add(refreshToken);
-            var res = new LoginSuccessResponse()
+            var res = new LoginSuccessResponse
             {
                 RefreshToken = refreshToken.Value,
                 Jwt = jwt

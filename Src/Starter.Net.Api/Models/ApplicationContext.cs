@@ -5,12 +5,17 @@ using Microsoft.Extensions.Options;
 using Npgsql;
 using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Configs;
+using Starter.Net.Api.Scheduling;
+using Starter.Net.Api.Users;
 
 namespace Starter.Net.Api.Models
 {
     public class ApplicationContext: IdentityDbContext
     {
-        public DbSet<User> Users { set; get; }
+        public DbSet<Calendar> Calendars { set; get; }
+        public DbSet<Event> Events { set; get; }
+        public DbSet<UserToCalendar> UserToCalendars { set; get; }
+        public new DbSet<User> Users { set; get; }
         public DbSet<RefreshToken> RefreshTokens { set; get; }
         public DbSet<Invitation> Invitations { set; get; }
         private readonly Database _db;

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Starter.Net.Api.Models;
@@ -9,9 +10,10 @@ using Starter.Net.Api.Models;
 namespace Starter.Net.Api.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20190518045912_Scheduling")]
+    partial class Scheduling
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,7 +47,7 @@ namespace Starter.Net.Api.Migrations
                         new
                         {
                             Id = "9a6eb015-82d1-480c-b962-5aab596ef4f6",
-                            ConcurrencyStamp = "12de2df2-a0c5-402f-ac8f-d24914c01b38",
+                            ConcurrencyStamp = "aea2e5a7-7336-4fe2-b6e9-5b8581071ffa",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         });
@@ -269,20 +271,6 @@ namespace Starter.Net.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Events");
-                });
-
-            modelBuilder.Entity("Starter.Net.Api.User.UserToCalendar", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Calendar");
-
-                    b.Property<string>("User");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserToCalendars");
                 });
 
             modelBuilder.Entity("Starter.Net.Api.Models.User", b =>

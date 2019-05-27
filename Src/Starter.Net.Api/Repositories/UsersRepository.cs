@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.ViewModels;
 
@@ -44,7 +43,7 @@ namespace Starter.Net.Api.Repositories
             {
                 return (result, null, null);
             }
-            var response = new UserRegistrationSuccessResponse()
+            var response = new UserRegistrationSuccessResponse
             {
                 Id = user.Id,
                 Email = user.Email,

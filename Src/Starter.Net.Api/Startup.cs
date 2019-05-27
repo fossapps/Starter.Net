@@ -1,25 +1,24 @@
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Configs;
 using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
+using Starter.Net.Api.Scheduling;
 using Starter.Net.Api.Services;
+using Starter.Net.Api.Users;
 
 namespace Starter.Net.Api
 {
@@ -40,6 +39,10 @@ namespace Starter.Net.Api
             services.AddSingleton<IMailService, SmtpMailService>();
             services.AddScoped<IInvitationRepository, InvitationRepository>();
             services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IEventService, EventService>();
+            services.AddScoped<ICalendarRepository, CalendarRepository>();
+            services.AddScoped<IUserCalendarService, UserCalendarService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRolesRepository, RolesRepository>();
             services.AddScoped<IRoleStore<IdentityRole>, RoleStore<IdentityRole>>();
@@ -79,6 +82,7 @@ namespace Starter.Net.Api
             services.AddMvc()
                 .AddNewtonsoftJson();
             services.Configure<IdentityOptions>(ConfigureIdentityOptions);
+            services.Configure<KestrelServerOptions>(x => { x.AllowSynchronousIO = true;});
         }
 
         private void ConfigureIdentityOptions(IdentityOptions options)
