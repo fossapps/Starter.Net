@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Starter.Net.Api.AntiSpam;
 using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.Repositories;
@@ -23,6 +24,7 @@ namespace Starter.Net.Api.Controllers
         }
 
         [HttpPost("register")]
+        [GuardSpam]
         [ProducesResponseType(typeof(UserRegistrationSuccessResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register(UserRegistrationRequest userRegistrationRequest)
