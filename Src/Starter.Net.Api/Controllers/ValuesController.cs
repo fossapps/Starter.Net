@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using reCAPTCHA.AspNetCore;
+using Starter.Net.Api.AntiSpam;
 
 namespace Starter.Net.Api.Controllers
 {
@@ -7,6 +10,12 @@ namespace Starter.Net.Api.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private readonly IRecaptchaService _recaptchaService;
+        public ValuesController(IRecaptchaService recaptchaService)
+        {
+            _recaptchaService = recaptchaService;
+        }
+
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
@@ -24,9 +33,10 @@ namespace Starter.Net.Api.Controllers
 
         // POST api/values
         [HttpPost]
-        public string Post([FromBody] string value)
+        [GuardSpam]
+        public async Task<string> Post()
         {
-            return $"value: {value}";
+            return "{\"success\": true}";
         }
 
         // PUT api/values/5
