@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using reCAPTCHA.AspNetCore;
 using Starter.Net.Api.Configs;
 using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;
@@ -34,6 +35,13 @@ namespace Starter.Net.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public new void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
             AddConfiguration(services, Configuration);
             base.ConfigureServices(services);
             services.AddSingleton<IMailService, SmtpMailService>();
@@ -48,6 +56,7 @@ namespace Starter.Net.Api
             services.AddScoped<IRoleStore<IdentityRole>, RoleStore<IdentityRole>>();
             services.AddScoped<DbContext, ApplicationContext>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddSingleton<IRecaptchaService, RecaptchaService>();
             services.AddSingleton<ITokenFactory, TokenFactory>();
             services.AddDbContext<ApplicationContext>();
             services.AddIdentity<User, IdentityRole>(options =>
@@ -107,6 +116,7 @@ namespace Starter.Net.Api
         {
             services.AddSingleton(configuration);
             services.Configure<Database>(configuration.GetSection("DatabaseConfig"));
+            services.Configure<RecaptchaSettings>(configuration.GetSection("RecaptchaSettings"));
             services.Configure<InitDb>(configuration.GetSection("InitDb"));
             services.Configure<Mail>(configuration.GetSection("EmailConfig"));
             services.Configure<Configs.Authentication>(configuration.GetSection("Authentication"));
@@ -115,6 +125,7 @@ namespace Starter.Net.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors("CorsPolicy");
             base.Configure(app);
             if (env.IsDevelopment())
             {
