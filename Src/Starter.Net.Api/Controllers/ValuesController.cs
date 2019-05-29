@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using reCAPTCHA.AspNetCore;
+using Microsoft.Extensions.Logging;
 using Starter.Net.Api.AntiSpam;
 
 namespace Starter.Net.Api.Controllers
@@ -10,16 +10,17 @@ namespace Starter.Net.Api.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private readonly IRecaptchaService _recaptchaService;
-        public ValuesController(IRecaptchaService recaptchaService)
+        private readonly ILogger<ValuesController> _logger;
+        public ValuesController(ILogger<ValuesController> logger)
         {
-            _recaptchaService = recaptchaService;
+            _logger = logger;
         }
 
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
+            _logger.LogWarning("values controller");
             HttpContext.Items.TryGetValue("uuid", out var uuid);
             return new[] {"value1", "value2", uuid?.ToString()};
         }
