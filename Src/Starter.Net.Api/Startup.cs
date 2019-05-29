@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Slack;
 using Microsoft.IdentityModel.Tokens;
 using reCAPTCHA.AspNetCore;
 using Starter.Net.Api.Configs;
@@ -123,8 +125,13 @@ namespace Starter.Net.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddSlack(new SlackConfiguration
+            {
+                MinLevel = LogLevel.Warning,
+                WebhookUrl = new Uri("https://hooks.slack.com/services/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"),
+            }, env.ApplicationName, env.EnvironmentName);
             app.UseCors("CorsPolicy");
             base.Configure(app);
             if (env.IsDevelopment())
