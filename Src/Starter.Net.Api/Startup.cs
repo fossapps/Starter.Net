@@ -44,6 +44,7 @@ namespace Starter.Net.Api
                         .AllowAnyMethod()
                         .AllowAnyHeader());
             });
+            services.AddControllers().AddNewtonsoftJson();
             AddConfiguration(services, Configuration);
             base.ConfigureServices(services);
             services.AddSingleton<IMailService, SmtpMailService>();
@@ -90,8 +91,6 @@ namespace Starter.Net.Api
                         ClockSkew = TimeSpan.Zero
                     };
                 });
-            services.AddMvc()
-                .AddNewtonsoftJson();
             services.Configure<IdentityOptions>(ConfigureIdentityOptions);
             services.Configure<KestrelServerOptions>(x => { x.AllowSynchronousIO = true;});
         }
@@ -146,7 +145,8 @@ namespace Starter.Net.Api
 
 //            app.UseHttpsRedirection();
 
-            app.UseRouting(routes => { routes.MapControllers(); });
+            app.UseRouting();
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
             app.UseAuthentication();
             app.UseAuthorization();

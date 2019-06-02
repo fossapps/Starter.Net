@@ -3,7 +3,7 @@ version: 2.0
 jobs:
   install:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview3-alpine3.9
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview5-alpine3.9
     working_directory: /home/circleci/Starter.Net
     steps:
       - checkout
@@ -16,7 +16,7 @@ jobs:
 
   build_project:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview3-alpine3.9
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview5-alpine3.9
     working_directory: /home/circleci/Starter.Net
     steps:
       - restore_cache:
@@ -30,7 +30,7 @@ jobs:
 
   execute_tests:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview3-alpine3.9
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview5-alpine3.9
     working_directory: /home/circleci/Starter.Net
     steps:
       - restore_cache:
@@ -39,7 +39,7 @@ jobs:
       - run: dotnet test
   produce_dll:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview3-alpine3.9
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview5-alpine3.9
     working_directory: /home/circleci/Starter.Net
     steps:
       - restore_cache:
