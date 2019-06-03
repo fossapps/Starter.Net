@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Npgsql;
 using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Configs;
+using Starter.Net.Api.LocationService;
 using Starter.Net.Api.Scheduling;
 using Starter.Net.Api.Users;
 
@@ -18,6 +19,7 @@ namespace Starter.Net.Api.Models
         public new DbSet<User> Users { set; get; }
         public DbSet<RefreshToken> RefreshTokens { set; get; }
         public DbSet<Invitation> Invitations { set; get; }
+        public DbSet<Location> Locations { set; get; }
         private readonly Database _db;
 
         public ApplicationContext(DbContextOptions options, IOptions<Database> dbOption) : base(options)
