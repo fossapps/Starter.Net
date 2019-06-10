@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Starter.Net.Api.ViewModels
+namespace Starter.Net.Api.Scheduling
 {
     public class CalendarEvent
     {

@@ -28,7 +28,7 @@ namespace Starter.Net.Api.Controllers
         [HttpGet("calendars")]
         public async Task<IActionResult> GetAllCalendars()
         {
-            var calendars = _userCalendar.FindCalendarForUser(this.GetUserId()).Select(x => new ViewModels.Calendar()
+            var calendars = _userCalendar.FindCalendarForUser(this.GetUserId()).Select(x => new CalendarResponse()
             {
                 Id = x.Id,
                 Name = x.Name,
