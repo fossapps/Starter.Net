@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Starter.Net.Api.ViewModels
+namespace Starter.Net.Api.Authentication
 {
     public class PasswordResetRequest
     {

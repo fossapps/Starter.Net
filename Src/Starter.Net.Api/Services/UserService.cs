@@ -2,6 +2,7 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Configs;
 using Starter.Net.Api.Mails;
 using Starter.Net.Api.Mails.Content;

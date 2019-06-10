@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Models;
 using Starter.Net.Api.ViewModels;
 

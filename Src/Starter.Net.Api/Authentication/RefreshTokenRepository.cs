@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Starter.Net.Api.Models;
 
-namespace Starter.Net.Api.Repositories
+namespace Starter.Net.Api.Authentication
 {
     public class RefreshTokenRepository : IRefreshTokenRepository
     {

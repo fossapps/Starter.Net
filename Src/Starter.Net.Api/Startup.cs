@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Slack;
 using Microsoft.IdentityModel.Tokens;
 using reCAPTCHA.AspNetCore;
+using Starter.Net.Api.Authentication;
 using Starter.Net.Api.Configs;
 using Starter.Net.Api.Mails;
 using Starter.Net.Api.Models;

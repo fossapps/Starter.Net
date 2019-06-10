@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Starter.Net.Api.Authentication;
+using Starter.Net.Api.Controllers;
 using Starter.Net.Api.Repositories;
 using Starter.Net.Api.Services;
 using Starter.Net.Api.ViewModels;
 
-namespace Starter.Net.Api.Controllers
+namespace Starter.Net.Api.Authentication
 {
     [Route("api/[controller]")]
     [ApiController]
