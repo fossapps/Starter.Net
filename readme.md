@@ -49,6 +49,10 @@ So in conclusion, there's no timeline as of now, see issues to track what's bein
 ## Getting Started
 Simply clone this repository, and open in Rider or Visual Studio Code and start building.
 
+## Contribution
+Please follow the existing coding standards which is being followed, no trailing whitespaces, edge cases goes to if conditions,
+follow line of sight rule. Happy path is always straight down, only short circuit (early exits) the error path unless there's a strong reason not to.
+
 ## More Documentation
 Before a feature is worked on, I'll try to document on what needs to be done, after the feature is ready,
 I'll try to finalize the documentation. If there's something missing, please contribute.
