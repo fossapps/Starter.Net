@@ -1,4 +1,4 @@
-namespace Starter.Net.Api.ViewModels
+namespace Starter.Net.Api.Authentication
 {
     public class LoginSuccessResponse
     {
