@@ -235,7 +235,7 @@ namespace Starter.Net.Api.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("Starter.Net.Api.Scheduling.Calendar", b =>
+            modelBuilder.Entity("Starter.Net.Api.Scheduling.CalendarResponse", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
@@ -254,7 +254,7 @@ namespace Starter.Net.Api.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Calendar");
+                    b.Property<string>("CalendarResponse");
 
                     b.Property<string>("Description");
 
@@ -276,7 +276,7 @@ namespace Starter.Net.Api.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Calendar");
+                    b.Property<string>("CalendarResponse");
 
                     b.Property<string>("User");
 

@@ -1,8 +1,8 @@
 using System;
 
-namespace Starter.Net.Api.ViewModels
+namespace Starter.Net.Api.Scheduling
 {
-    public class Calendar
+    public class CalendarResponse
     {
         public string Id;
         public string Name;
